@@ -10,7 +10,6 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-
 // === Папка для загруженных файлов ===
 const uploadDir = path.join(__dirname, "uploads");
 if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
@@ -28,18 +27,19 @@ const storage = multer.diskStorage({
 const upload = multer({ storage, limits: { fileSize: 10 * 1024 * 1024 } });
 
 // === Обработка загрузки файла ===
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true, limit: '10mb' }));
-
+app.use(express.json({ limit: "10mb" }));
+app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
 // Обработчик загрузки файла
-app.post('/upload', upload.single('file'), (req, res) => {
-  if (!req.file) return res.status(400).json({ error: 'Файл не загружен' });
+app.post("/upload", upload.single("file"), (req, res) => {
+  if (!req.file) return res.status(400).json({ error: "Файл не загружен" });
 
   // 🔧 ИСПРАВЛЕНИЕ: Multer прочитал UTF-8 байты как latin1.
   // Берём эти "испорченные" символы, превращаем обратно в исходные байты (через latin1),
   // а затем декодируем их уже правильно как UTF-8.
-  const originalName = Buffer.from(req.file.originalname, 'latin1').toString('utf8');
+  const originalName = Buffer.from(req.file.originalname, "latin1").toString(
+    "utf8",
+  );
 
   const fileUrl = `/uploads/${req.file.filename}`;
   // Отдаём имя файла как есть — JSON/Socket.IO отлично справятся с кириллицей
@@ -136,7 +136,7 @@ io.on("connection", (socket) => {
 const clientDistPath = path.join(__dirname, "../client/dist");
 if (fs.existsSync(clientDistPath)) {
   app.use(express.static(clientDistPath));
-  app.get("*", (req, res) => {
+  app.get("/{*splat}", (req, res) => {
     res.sendFile(path.join(clientDistPath, "index.html"));
   });
 }
