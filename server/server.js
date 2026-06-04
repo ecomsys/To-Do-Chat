@@ -154,7 +154,7 @@ if (fs.existsSync(clientDistPath)) {
   });
 }
 
-const PORT = 5000;
+const PORT = 5001;
 serverHttp.listen(PORT, () =>
   console.log(`Сервер чата запущен на порту ${PORT}`),
 );

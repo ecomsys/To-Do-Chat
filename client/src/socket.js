@@ -5,7 +5,7 @@ let socket = null;
 export const getSocket = () => {
   if (!socket) {
     const isDev = import.meta.env.DEV;
-    const url = isDev ? 'http://localhost:5000' : undefined;
+    const url = isDev ? 'http://localhost:5001' : undefined;
     socket = io(url, {
       transports: ['websocket', 'polling'],
     });
