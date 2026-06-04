@@ -80,6 +80,19 @@ io.on("connection", (socket) => {
     socket.emit("joined", { role, name });
   });
 
+  socket.on("clearChat", () => {
+    const user = users.get(socket.id);
+    if (!user) return;
+    if (user.role !== "Программист") {
+      console.warn(`Попытка очистки чата от не-программиста: ${user.role}`);
+      return;
+    }
+    messageHistory.length = 0; // очищаем массив
+    io.emit("messageHistory", []); // рассылаем пустую историю всем
+    io.emit("chatCleared", { by: user.name }); // опционально — уведомление
+    console.log(`Чат очищен пользователем: ${user.name}`);
+  });
+
   socket.on("chatMessage", ({ message }) => {
     const user = users.get(socket.id);
     if (!user) return;

@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { getSocket, resetSocket } from "./socket";
-import { ROLE_PASSWORDS } from "./constants";
+import { ROLE_PASSWORDS ,PROGRAMMER_ROLE} from "./constants";
 
 import LoadingScreen from "./components/LoadingScreen";
 import LoginForm from "./components/LoginForm";
@@ -104,6 +104,16 @@ function App() {
       };
     }
   }, [step, role, name]);
+
+  // === Новая функция очистки чата ===
+  const clearChat = useCallback(() => {
+    if (!window.confirm("Очистить весь чат? Это действие нельзя отменить.")) return;
+    if (socketRef.current) {
+      socketRef.current.emit("clearChat");
+    }
+  }, []);
+
+  const isProgrammer = role === PROGRAMMER_ROLE;
 
   // === Обработчики ===
   const handleLogin = (e) => {
@@ -229,6 +239,8 @@ function App() {
       <div className="flex-1 flex flex-col min-w-0">
         <ChatHeader
           role={role}
+            isProgrammer={isProgrammer}
+          clearChat={clearChat}
           toggleMobileMenu={toggleMobileMenu}
           handleLogout={handleLogout}
         />

@@ -1,4 +1,6 @@
 export const ROLES = ['Дизайнер', 'Заказчик', 'Программист'];
+export const PROGRAMMER_ROLE = "Программист";
+
 export const ROLE_COLORS = {
   Дизайнер: '#ec489a',
   Заказчик: '#f59e0b',
