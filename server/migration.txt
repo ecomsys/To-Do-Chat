@@ -1,0 +1,13 @@
+cd /var/www/todo-app/server
+
+node -e "
+const fs = require('fs');
+const data = JSON.parse(fs.readFileSync('data.json'));
+data.tasks = data.tasks.map(t => ({
+  ...t,
+  createdAt: t.createdAt ? (typeof t.createdAt === 'number' ? new Date(t.createdAt).toISOString() : t.createdAt) : new Date().toISOString()
+}));
+fs.writeFileSync('data.json', JSON.stringify(data, null, 2));
+console.log('Миграция завершена');
+"
+pm2 restart todo-server
