@@ -84,18 +84,16 @@ export default defineConfig({
       "@": path.resolve(__dirname, "src"),
     },
   },
- server: {
+  server: {
     port: 3000,
     open: true,
     host: true,
     strictPort: true,
     proxy: {
-      '/upload': 'http://localhost:5000',
-      '/uploads': 'http://localhost:5000',
-      '/socket.io': {
-        target: 'http://localhost:5000',
-        ws: true,
-      },
+      "/upload": "http://localhost:5001",
+      "/clear-uploads": "http://localhost:5001", // ← ДОБАВИТЬ
+      "/uploads": "http://localhost:5001", // ← на всякий случай
+      "/socket.io": { target: "http://localhost:5001", ws: true },
     },
   },
   build: {

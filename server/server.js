@@ -10,6 +10,12 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+const ROLE_PASSWORDS = {
+  Дизайнер: 'designer_01',
+  Заказчик: 'zakazchik_01',
+  Программист: 'programmer_01',
+};
+
 // === Папка для загруженных файлов ===
 const uploadDir = path.join(__dirname, "uploads");
 if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
@@ -45,6 +51,38 @@ app.post("/upload", upload.single("file"), (req, res) => {
   // Отдаём имя файла как есть — JSON/Socket.IO отлично справятся с кириллицей
   res.json({ url: fileUrl, name: originalName, type: req.file.mimetype });
 });
+
+
+// === Очистка папки uploads (только для программиста) ===
+app.post("/clear-uploads", (req, res) => {
+  const { role, password } = req.body;
+
+  if (role !== "Программист") {
+    return res.status(403).json({ error: "Доступ запрещён" });
+  }
+  if (password !== ROLE_PASSWORDS[role]) {
+    return res.status(403).json({ error: "Неверный пароль" });
+  }
+
+  try {
+    const files = fs.readdirSync(uploadDir);
+    let deleted = 0;
+    for (const file of files) {
+      const filePath = path.join(uploadDir, file);
+      const stat = fs.statSync(filePath);
+      if (stat.isFile()) {
+        fs.unlinkSync(filePath);
+        deleted++;
+      }
+    }
+    console.log(`Папка uploads очищена: удалено ${deleted} файлов`);
+    res.json({ success: true, deleted });
+  } catch (err) {
+    console.error("Ошибка очистки uploads:", err);
+    res.status(500).json({ error: "Ошибка при очистке" });
+  }
+});
+
 
 // === Сокеты ===
 const serverHttp = http.createServer(app);

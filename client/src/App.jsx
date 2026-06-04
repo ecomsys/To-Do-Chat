@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { getSocket, resetSocket } from "./socket";
-import { ROLE_PASSWORDS ,PROGRAMMER_ROLE} from "./constants";
+import { ROLE_PASSWORDS, PROGRAMMER_ROLE } from "./constants";
 
 import LoadingScreen from "./components/LoadingScreen";
 import LoginForm from "./components/LoginForm";
@@ -68,7 +68,9 @@ function App() {
       const onMessage = (msg) => {
         setMessages((prev) => [...prev, msg]);
         if (audioRef.current && msg.userId !== socket.id) {
-          audioRef.current.play().catch((e) => console.warn("Звук заблокирован", e));
+          audioRef.current
+            .play()
+            .catch((e) => console.warn("Звук заблокирован", e));
         }
       };
       const onUserTyping = ({ userId, isTyping }) =>
@@ -107,7 +109,8 @@ function App() {
 
   // === Новая функция очистки чата ===
   const clearChat = useCallback(() => {
-    if (!window.confirm("Очистить весь чат? Это действие нельзя отменить.")) return;
+    if (!window.confirm("Очистить весь чат? Это действие нельзя отменить."))
+      return;
     if (socketRef.current) {
       socketRef.current.emit("clearChat");
     }
@@ -209,6 +212,45 @@ function App() {
 
   const toggleMobileMenu = () => setMobileMenuOpen(!mobileMenuOpen);
 
+  // === Очистка папки uploads ===
+  const clearUploads = useCallback(async () => {
+    if (
+      !window.confirm(
+        "Удалить ВСЕ загруженные файлы? Ссылки в старых сообщениях перестанут работать.",
+      )
+    )
+      return;
+
+    try {
+      const res = await fetch("/clear-uploads", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ role, password }),
+      });
+
+      // 🔍 Дебаг: смотрим что реально пришло
+      const text = await res.text();
+      console.log("Ответ сервера:", res.status, text);
+
+      if (!res.ok) {
+        let errorMsg = `Ошибка ${res.status}`;
+        try {
+          const data = JSON.parse(text);
+          errorMsg = data.error || errorMsg;
+        } catch {
+          // sss
+        }
+        throw new Error(errorMsg);
+      }
+
+      const data = JSON.parse(text);
+      alert(`✅ Очищено файлов: ${data.deleted}`);
+    } catch (err) {
+      console.error("Ошибка clearUploads:", err);
+      alert("❌ Ошибка: " + err.message);
+    }
+  }, [role, password]);
+
   // === Рендер ===
   if (step === "loading") return <LoadingScreen />;
 
@@ -239,8 +281,9 @@ function App() {
       <div className="flex-1 flex flex-col min-w-0">
         <ChatHeader
           role={role}
-            isProgrammer={isProgrammer}
+          isProgrammer={isProgrammer}
           clearChat={clearChat}
+          clearUploads={clearUploads}
           toggleMobileMenu={toggleMobileMenu}
           handleLogout={handleLogout}
         />
