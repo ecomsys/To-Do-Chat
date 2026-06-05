@@ -227,8 +227,7 @@ function App() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ role, password }),
       });
-
-      // 🔍 Дебаг: смотрим что реально пришло
+    
       const text = await res.text();
       console.log("Ответ сервера:", res.status, text);
 
@@ -244,10 +243,10 @@ function App() {
       }
 
       const data = JSON.parse(text);
-      alert(`✅ Очищено файлов: ${data.deleted}`);
+      alert(` Очищено файлов: ${data.deleted}`);
     } catch (err) {
       console.error("Ошибка clearUploads:", err);
-      alert("❌ Ошибка: " + err.message);
+      alert(" Ошибка: " + err.message);
     }
   }, [role, password]);
 
