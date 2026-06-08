@@ -56,7 +56,7 @@ function MessageItem({ msg }) {
     const fileName = msg.fileName;
     const fileUrl = msg.fileUrl;
     const serverFileName = fileUrl.split("/").pop();
-    const downloadUrl = `/download/${encodeURIComponent(serverFileName)}?original=${encodeURIComponent(fileName)}`;
+    const downloadUrl = `/api/files/download/${encodeURIComponent(serverFileName)}?original=${encodeURIComponent(fileName)}`;
 
     const slides = [{ src: fileUrl, type: isVideo ? "video" : "image" }];
 
@@ -74,7 +74,7 @@ function MessageItem({ msg }) {
           </div>
         )}
 
-        <div className="flex flex-col min-w-0 max-w-[75%]">
+        <div className="flex flex-col min-w-50 sm:min-w-75 max-w-[75%]">
           {/* Заголовок (Имя, время) - выравниваем в зависимости от стороны */}
           <div className={`flex items-center gap-2 my-2 ${isProgrammerMsg ? "" : "flex-row-reverse"}`}>
             <span className="font-semibold text-white text-sm">{msg.name}</span>
@@ -112,7 +112,7 @@ function MessageItem({ msg }) {
                   preload="metadata"
                 />
                 <div className="absolute inset-0 bg-black/30 flex items-center justify-center group-hover/video:bg-black/50 transition-colors">
-                  <Play className="text-white w-12 h-12 opacity-80" fill="currentColor" />
+                  <Play className="text-white w-8 h-8 sm:w-12 sm:h-12 opacity-80" fill="currentColor" />
                 </div>
               </div>
             )}
@@ -228,7 +228,7 @@ function MessageItem({ msg }) {
         </div>
       )}
 
-      <div className="flex flex-col min-w-0 max-w-[75%]">
+      <div className="flex flex-col min-w-50 sm:min-w-75 max-w-[75%]">
         {/* Заголовок */}
         <div className={`flex items-center gap-2 my-2 ${isProgrammerMsg ? "" : "flex-row-reverse"}`}>
           <span className="font-semibold text-white text-sm">{msg.name}</span>

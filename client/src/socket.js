@@ -1,21 +1,16 @@
-import io from 'socket.io-client';
+import { io } from "socket.io-client";
 
 let socket = null;
 
 export const getSocket = () => {
   if (!socket) {
-    const isDev = import.meta.env.DEV;
-    const url = isDev ? 'http://localhost:5001' : undefined;
-    socket = io(url, {
-      transports: ['websocket', 'polling'],
+    socket = io("http://localhost:5001", {
+      withCredentials: true, // ВАЖНО: Браузер отправит httpOnly куки при подключении!
     });
   }
   return socket;
 };
 
 export const resetSocket = () => {
-  if (socket) {
-    socket.disconnect();
-    socket = null;
-  }
+  socket = null;
 };

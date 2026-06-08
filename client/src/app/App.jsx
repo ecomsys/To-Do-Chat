@@ -20,6 +20,8 @@ function App() {
     password,
     passwordError,
     loginError,
+    setLoginError,   
+    setPasswordError,
     messages,
     inputMessage,
     users,
@@ -77,6 +79,8 @@ function App() {
         password={password}
         setPassword={setPassword}
         passwordError={passwordError}
+        setLoginError={setLoginError}       
+        setPasswordError={setPasswordError} 
         loginError={loginError}
         handleLogin={handleLogin}
       />

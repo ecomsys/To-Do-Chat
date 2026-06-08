@@ -1,13 +1,11 @@
 import { create } from "zustand";
 import { getSocket, resetSocket } from "../socket";
-import { ROLE_PASSWORDS } from "../constants";
 
 const useChatStore = create((set, get) => ({
-  // --- State ---
   step: "loading",
   role: "",
   name: "",
-  password: "",
+  password: "", // Возвращаем password для формы
   passwordError: "",
   loginError: "",
   messages: [],
@@ -19,66 +17,72 @@ const useChatStore = create((set, get) => ({
   mobileMenuOpen: false,
   uploadingFile: false,
 
-  // --- Refs (хранятся как обычные свойства стора) ---
   socket: null,
   typingTimeout: null,
   hasJoined: false,
   audio: null,
 
-  // --- Инициализация приложения (звук + сессия) ---
-  initApp: () => {
-    // Звук
+  initApp: async () => {
     const audio = new Audio("/sounds/iphone.mp3");
     audio.volume = 0.3;
     set({ audio });
 
-    // Сессия из localStorage
-    const savedRole = localStorage.getItem("chatRole");
-    const savedName = localStorage.getItem("chatName");
-    const savedPassword = localStorage.getItem("chatPassword");
-    if (savedRole && savedPassword) {
-      set({
-        role: savedRole,
-        name: savedName || "",
-        password: savedPassword,
-        step: "chat",
-      });
-    } else {
+    try {
+      // Новый путь + credentials
+      const res = await fetch("/api/auth/me", { credentials: 'include' });
+      if (res.ok) {
+        const data = await res.json();
+        set({ role: data.role, name: data.name, step: "chat" });
+      } else {
+        set({ step: "login" });
+      }
+    } catch {
       set({ step: "login" });
     }
   },
 
-  // --- Авторизация ---
   setRole: (role) => set({ role }),
   setName: (name) => set({ name }),
-  setPassword: (password) => set({ password }),
-
-  handleLogin: (e) => {
+  setPassword: (password) => set({ password }), // Возвращаем сеттер
+  
+  handleLogin: async (e) => {
     e.preventDefault();
-    const { role, password } = get();
+    const { role, name, password } = get(); // Берем пароль из стора
+    
     set({ passwordError: "", loginError: "" });
     if (!role) return;
-    const expectedPassword = ROLE_PASSWORDS[role];
-    if (password !== expectedPassword) {
-      set({ passwordError: `Неверный пароль для роли "${role}"` });
-      return;
+
+    try {
+      // Новый путь + credentials
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ role, password, name }),
+        credentials: 'include' 
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        set({ passwordError: data.error || "Ошибка входа" });
+        return;
+      }
+      
+      // Очищаем пароль из памяти после успешного входа
+      set({ role: data.role, name: data.name, password: "", step: "chat" });
+    } catch (err) {
+      console.log(err);
+      set({ loginError: "Сервер недоступен" });
     }
-    localStorage.setItem("chatRole", role);
-    if (get().name) localStorage.setItem("chatName", get().name);
-    localStorage.setItem("chatPassword", password);
-    set({ step: "chat" });
   },
 
-  // --- Сокеты ---
   connectSocket: () => {
-    const { step, role, name, socket, hasJoined } = get();
+    const { step, socket, hasJoined } = get();
     if (step !== "chat") return;
 
-    if (socket) {
-      socket.disconnect();
-    }
+    if (socket) socket.disconnect();
     resetSocket();
-    const newSocket = getSocket();
+    
+    const newSocket = getSocket(); 
     set({ socket: newSocket });
 
     const onUsersList = (list) => set({ users: list });
@@ -90,23 +94,14 @@ const useChatStore = create((set, get) => ({
       }
     };
     const onUserTyping = ({ userId, isTyping }) =>
-      set((state) => ({
-        typingUsers: { ...state.typingUsers, [userId]: isTyping },
-      }));
+      set((state) => ({ typingUsers: { ...state.typingUsers, [userId]: isTyping } }));
     const onRoleTaken = (data) => {
       set({ loginError: data.message, step: "login", hasJoined: false });
       resetSocket();
-      localStorage.removeItem("chatRole");
-      localStorage.removeItem("chatName");
-      localStorage.removeItem("chatPassword");
     };
     const onMessageHistory = (history) => set({ messages: history });
-
-    const onMessageDeleted = ({ messageId }) => {
-      set((state) => ({
-        messages: state.messages.filter((m) => m.id !== messageId),
-      }));
-    };
+    const onMessageDeleted = ({ messageId }) =>
+      set((state) => ({ messages: state.messages.filter((m) => m.id !== messageId) }));
 
     newSocket.on("messageHistory", onMessageHistory);
     newSocket.on("usersList", onUsersList);
@@ -116,11 +111,10 @@ const useChatStore = create((set, get) => ({
     newSocket.on("messageDeleted", onMessageDeleted);
 
     if (!hasJoined) {
-      newSocket.emit("userJoin", { role, name: name || role });
+      newSocket.emit("userJoin");
       set({ hasJoined: true });
     }
 
-    // Функция очистки (будет вызываться в useEffect)
     return () => {
       newSocket.off("messageHistory", onMessageHistory);
       newSocket.off("usersList", onUsersList);
@@ -131,7 +125,6 @@ const useChatStore = create((set, get) => ({
     };
   },
 
-  // --- Чат ---
   setInputMessage: (msg) => set({ inputMessage: msg }),
 
   sendMessage: (e) => {
@@ -146,8 +139,7 @@ const useChatStore = create((set, get) => ({
   },
 
   clearChat: () => {
-    if (!window.confirm("Очистить весь чат? Это действие нельзя отменить."))
-      return;
+    if (!window.confirm("Очистить весь чат?")) return;
     const { socket } = get();
     if (socket) socket.emit("clearChat");
   },
@@ -162,20 +154,16 @@ const useChatStore = create((set, get) => ({
     if (!socket) return;
     socket.emit("typing", { isTyping: true });
     if (typingTimeout) clearTimeout(typingTimeout);
-    const newTimeout = setTimeout(() => {
-      get().socket?.emit("typing", { isTyping: false });
-    }, 1000);
+    const newTimeout = setTimeout(() => get().socket?.emit("typing", { isTyping: false }), 1000);
     set({ typingTimeout: newTimeout });
   },
 
-  // --- Файлы ---
   handleFileChange: (e) => {
     const file = e.target.files[0];
     if (file) {
       if (file.type.startsWith("image/")) {
         const reader = new FileReader();
-        reader.onloadend = () =>
-          set({ selectedFile: file, filePreview: reader.result });
+        reader.onloadend = () => set({ selectedFile: file, filePreview: reader.result });
         reader.readAsDataURL(file);
       } else {
         set({ selectedFile: file, filePreview: "" });
@@ -192,17 +180,18 @@ const useChatStore = create((set, get) => ({
     const formData = new FormData();
     formData.append("file", selectedFile);
     try {
-      const res = await fetch("/upload", { method: "POST", body: formData });
+      // Новый путь + credentials
+      const res = await fetch("/api/files/upload", {
+        method: "POST",
+        body: formData,
+        credentials: 'include' 
+      });
       if (!res.ok) throw new Error("Ошибка загрузки");
       const data = await res.json();
-      socket.emit("chatFile", {
-        name: data.name,
-        type: data.type,
-        url: data.url,
-      });
+      socket.emit("chatFile", { name: data.name, type: data.type, url: data.url });
       set({ selectedFile: null, filePreview: "" });
     } catch (err) {
-      console.error("Ошибка загрузки файла:", err);
+      console.log(err);
       alert("Не удалось загрузить файл");
     } finally {
       set({ uploadingFile: false });
@@ -210,62 +199,35 @@ const useChatStore = create((set, get) => ({
   },
 
   clearUploads: async () => {
-    if (
-      !window.confirm(
-        "Удалить ВСЕ загруженные файлы? Ссылки в старых сообщениях перестанут работать.",
-      )
-    )
-      return;
-
-    const { role, password } = get();
+    if (!window.confirm("Удалить ВСЕ загруженные файлы?")) return;
     try {
-      const res = await fetch("/clear-uploads", {
+      // Новый путь + credentials
+      const res = await fetch("/api/files/clear-uploads", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ role, password }),
+        credentials: 'include' 
       });
-
-      const text = await res.text();
-      if (!res.ok) {
-        let errorMsg = `Ошибка ${res.status}`;
-        try {
-          const data = JSON.parse(text);
-          errorMsg = data.error || errorMsg;
-        } catch {
-          // err
-        }
-        throw new Error(errorMsg);
-      }
-      const data = JSON.parse(text);
+      if (!res.ok) throw new Error("Ошибка очистки");
+      const data = await res.json();
       alert(`Очищено файлов: ${data.deleted}`);
     } catch (err) {
-      console.error("Ошибка clearUploads:", err);
       alert("Ошибка: " + err.message);
     }
   },
 
-  // --- UI и Выход ---
-  toggleMobileMenu: () =>
-    set((state) => ({ mobileMenuOpen: !state.mobileMenuOpen })),
+  toggleMobileMenu: () => set((state) => ({ mobileMenuOpen: !state.mobileMenuOpen })),
 
-  handleLogout: () => {
+  handleLogout: async () => {
     const { socket } = get();
     if (socket) {
       socket.disconnect();
       set({ socket: null });
     }
     resetSocket();
-    localStorage.removeItem("chatRole");
-    localStorage.removeItem("chatName");
-    localStorage.removeItem("chatPassword");
-    set({
-      step: "login",
-      messages: [],
-      users: [],
-      typingUsers: {},
-      hasJoined: false,
-      mobileMenuOpen: false,
-    });
+    
+    // Новый путь + credentials
+    await fetch("/api/auth/logout", { method: "POST", credentials: 'include' });
+    
+    set({ step: "login", messages: [], users: [], typingUsers: {}, hasJoined: false, mobileMenuOpen: false, role: "", name: "", password: "" });
   },
 }));
 
