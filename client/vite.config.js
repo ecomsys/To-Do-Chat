@@ -108,6 +108,7 @@ export default defineConfig({
     host: true,
     strictPort: true,
     proxy: {
+      "/api": "http://localhost:5001",
       "/upload": "http://localhost:5001",
       "/clear-uploads": "http://localhost:5001", // ← ДОБАВИТЬ
       "/uploads": "http://localhost:5001", // ← на всякий случай
