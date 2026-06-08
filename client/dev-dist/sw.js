@@ -81,12 +81,14 @@ define(['./workbox-aeb6ecaf'], (function (workbox) { 'use strict';
     "revision": "3ca0b8505b4bec776b69afdba2768812"
   }, {
     "url": "index.html",
-    "revision": "0.aaec5nml45g"
+    "revision": "0.lpb3vhdf4m"
   }], {});
   workbox.cleanupOutdatedCaches();
   workbox.registerRoute(new workbox.NavigationRoute(workbox.createHandlerBoundToURL("index.html"), {
     allowlist: [/^\/$/]
   }));
-  workbox.registerRoute(/^https:\/\/todo\.ecomsys\.ru\/socket\.io\/.*/i, new workbox.NetworkOnly(), 'GET');
+  workbox.registerRoute(/\/socket\.io\/.*/i, new workbox.NetworkOnly(), 'GET');
+  workbox.registerRoute(/\/uploads\/.*/i, new workbox.NetworkOnly(), 'GET');
+  workbox.registerRoute(/\/download\/.*/i, new workbox.NetworkOnly(), 'GET');
 
 }));

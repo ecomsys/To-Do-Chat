@@ -1,59 +1,68 @@
-function ChatHeader({
+import { Button } from "@/components/ui/button";
+
+// Импортируем иконки из Lucide
+import { Menu, Trash2, FolderX, LogOut } from "lucide-react";
+
+export default function ChatHeader({
   role,
-  toggleMobileMenu,
-  handleLogout,
   isProgrammer,
   clearChat,
   clearUploads,
+  toggleMobileMenu,
+  handleLogout,
 }) {
   return (
     <div className="bg-slate-800 p-3 sm:p-4 border-b border-slate-700 flex justify-between items-center">
       <div className="flex items-center gap-2">
-        <button
+        <Button
+          className="rounded-full sm:hidden bg-transparent"
+          size="icon"        
           onClick={toggleMobileMenu}
-          className="sm:hidden text-white p-2 rounded-lg bg-slate-700 active:bg-slate-600"
         >
-          ☰
-        </button>
-        <div className="flex flex-col leading-tight">
-          <h1 className="text-lg sm:text-xl font-bold text-white truncate">
-            Совместный To‑Do
-          </h1>
+          <Menu className="h-5 w-5 text-white" />
+        </Button>
+        <div>
+          <h1 className="text-lg sm:text-xl font-bold text-white"><span className="text-green-600">To Do</span> чат</h1>
           <span className="text-xs text-slate-400 hidden sm:block">
             Роль: {role}
           </span>
         </div>
       </div>
-
-      <div className="flex items-center gap-2">
+      <div className="flex gap-2 ">
         {isProgrammer && (
           <>
-            <button
+            <Button
+              variant="destructive"
+              size="sm"
               onClick={clearChat}
-              title="Очистить чат"
-              className="px-2 py-1 sm:px-3 sm:py-1.5 bg-red-700 hover:bg-red-800 text-white rounded-lg text-xs sm:text-sm flex items-center gap-1 transition active:scale-95"
+              className="rounded-full gap-1.5" // Добавляем отступ между иконкой и текстом
             >
-              🗑️ <span className="hidden sm:inline">Очистить чат</span>
-            </button>
-            <button
+              <Trash2 className="h-4 w-4" />
+              {/* На маленьких экранах можно скрыть текст, оставив только иконку, 
+                  но пока оставим текст, так как кнопки не очень длинные */}
+              <span className="hidden md:inline">Очистить</span> чат
+            </Button>
+            <Button
+              variant="destructive"
+              size="sm"
               onClick={clearUploads}
-              title="Очистить загруженные файлы"
-              className="px-2 py-1 sm:px-3 sm:py-1.5 bg-orange-700 hover:bg-orange-800 text-white rounded-lg text-xs sm:text-sm flex items-center gap-1 transition active:scale-95"
+              className="rounded-full gap-1.5"
             >
-              📁 <span className="hidden sm:inline">Очистить файлы</span>
-            </button>
+              <FolderX className="h-4 w-4" />
+              <span className="hidden md:inline">Очистить</span> файлы
+            </Button>
           </>
         )}
-
-        <button
+        <Button
+          variant="destructive"
+          size="sm"
+          className="rounded-full sm:hidden gap-1.5"
           onClick={handleLogout}
-          className="sm:hidden px-3 py-1 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm"
         >
-          Выйти
-        </button>
+          <LogOut className="h-4 w-4" />
+          <span className="hidden sm:inline">Выйти</span>
+        </Button>
       </div>
     </div>
   );
 }
-
-export default ChatHeader;
