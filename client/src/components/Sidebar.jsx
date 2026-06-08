@@ -1,14 +1,14 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { ROLE_COLORS } from "../constants";
+import { getRoleColor } from "../constants";
 import useChatStore from "../store/useChatStore";
 
 export default function Sidebar({ users, typingUsers, handleLogout }) {
   const messages = useChatStore((state) => state.messages);
 
   return (
-    <div className="hidden sm:flex sm:w-64 flex-col bg-slate-800 border-r border-slate-700">
+    <div className="hidden sm:flex w-50 lg:w-64 flex-col bg-slate-800 border-r border-slate-700">
       <Card className="bg-transparent border-0 shadow-none rounded-none flex-1 flex flex-col">
         <CardHeader className="pb-2">
           <CardTitle className="text-white flex justify-between items-center">
@@ -32,15 +32,15 @@ export default function Sidebar({ users, typingUsers, handleLogout }) {
                 <Avatar className="w-8 h-8">
                   <AvatarFallback 
                     className="text-xs text-white"
-                    style={{ backgroundColor: ROLE_COLORS[user.role] }}
+                    style={{ backgroundColor: getRoleColor(user.role) }}
                   >
                     {user.name?.[0] || "?"}
                   </AvatarFallback>
                 </Avatar>
                 <div className="flex-1 min-w-0">
-                  <div className="text-sm text-white truncate">
+                  <div className="text-xs text-white truncate">
                     {user.name}{" "}
-                    <span className="text-slate-400 text-xs">({user.role})</span>
+                    <span className="text-slate-400">({user.role})</span>
                   </div>
                   {typingUsers[user.id] ? (
                     <div className="text-xs text-blue-400 animate-pulse">

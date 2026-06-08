@@ -7,7 +7,7 @@ import {
 } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { ROLE_COLORS } from "../constants";
+import { getRoleColor } from "../constants";
 import useChatStore from "../store/useChatStore";
 
 export default function MobileSidebar({
@@ -42,7 +42,7 @@ export default function MobileSidebar({
                 <Avatar className="w-8 h-8">
                   <AvatarFallback 
                     className="text-xs text-white"
-                    style={{ backgroundColor: ROLE_COLORS[user.role] }}
+                    style={{ backgroundColor: getRoleColor(user.role) }}                    
                   >
                     {user.name?.[0] || "?"}
                   </AvatarFallback>
