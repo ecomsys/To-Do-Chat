@@ -1,9 +1,10 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import FilePreview from "./FilePreview";
+import useChatStore from "@/store/useChatStore";
 
 // Импортируем иконки из Lucide
-import { Paperclip, Send, Loader2 } from "lucide-react";
+import { Paperclip, Send, Loader2, X } from "lucide-react";
 
 export default function ChatInput({
   selectedFile,
@@ -23,11 +24,38 @@ export default function ChatInput({
     else sendMessage(e);
   };
 
+  const replyingTo = useChatStore((state) => state.replyingTo);
+  const clearReplyingTo = useChatStore((state) => state.clearReplyingTo);
+
   return (
     <form
       onSubmit={handleSubmit}
       className="p-3 sm:p-4 bg-slate-800 border-t border-slate-700 relative z-10 shrink-0"
     >
+      {/* Плашка "Ответ для..." */}
+      {replyingTo && (
+        <div className="flex items-center justify-between bg-slate-700/50 border border-slate-600 px-3 py-2 mb-3 rounded-lg">
+          <div className="flex-1 min-w-0 border-l-2 border-blue-500 pl-2">
+            <p className="text-xs font-semibold text-blue-400">
+              {replyingTo.name}
+            </p>
+            <p className="text-xs text-slate-400 truncate">
+              {replyingTo.type === "file"
+                ? `📎 ${replyingTo.fileName}`
+                : replyingTo.message}
+            </p>
+          </div>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={clearReplyingTo}
+            className="shrink-0 ml-2 h-6 w-6 text-slate-400 hover:text-white hover:bg-transparent"
+          >
+            <X className="w-4 h-4" />
+          </Button>
+        </div>
+      )}
+
       <FilePreview
         selectedFile={selectedFile}
         filePreview={filePreview}

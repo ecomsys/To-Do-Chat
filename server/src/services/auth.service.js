@@ -1,10 +1,11 @@
 const jwt = require("jsonwebtoken");
-const { ROLE_PASSWORDS, JWT_SECRET } = require("../config/constants");
+const { JWT_SECRET } = require("../config/constants");
+const roleService = require("./role.service"); // Подключаем сервис ролей
 
 exports.verifyCredentials = (role, password) => {
-  const expectedPassword = ROLE_PASSWORDS[role];
-  if (!expectedPassword || password !== expectedPassword) return null;
-  return true;
+  const roleData = roleService.findRole(role);
+  if (!roleData || password !== roleData.password) return null;
+  return roleData.name || role; // Возвращаем дефолтное имя, если своего нет
 };
 
 exports.generateToken = (payload) => {

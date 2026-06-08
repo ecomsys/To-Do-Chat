@@ -1,8 +1,7 @@
 const { ROLE_PASSWORDS } = require("../config/constants");
 
-module.exports = (io) => {
+module.exports = (io, roleOccupancy) => {
   const users = new Map();
-  const roleOccupancy = new Map();
   const messageHistory = [];
   const MAX_HISTORY = 100;
 
@@ -11,7 +10,9 @@ module.exports = (io) => {
 
     socket.on("userJoin", () => {
       if (roleOccupancy.has(role) && roleOccupancy.get(role) !== socket.id) {
-        return socket.emit("roleTaken", { message: `Роль "${role}" уже занята.` });
+        return socket.emit("roleTaken", {
+          message: `Роль "${role}" уже занята.`,
+        });
       }
       roleOccupancy.set(role, socket.id);
       const user = { id: socket.id, role, name };
@@ -38,15 +39,35 @@ module.exports = (io) => {
       io.emit("messageDeleted", { messageId });
     });
 
-    socket.on("chatMessage", ({ message }) => {
-      const msgData = { id: Date.now(), userId: socket.id, role, name, message, timestamp: new Date().toISOString(), type: "text" };
+    socket.on("chatMessage", ({ message, replyTo }) => {
+      const msgData = {
+        id: Date.now(),
+        userId: socket.id,
+        role,
+        name,
+        message,
+        replyTo: replyTo || null,
+        timestamp: new Date().toISOString(),
+        type: "text",
+      };
       messageHistory.push(msgData);
       if (messageHistory.length > MAX_HISTORY) messageHistory.shift();
       io.emit("message", msgData);
     });
 
-    socket.on("chatFile", ({ name: fileName, type, url }) => {
-      const msgData = { id: Date.now(), userId: socket.id, role, name, fileName, fileType: type, fileUrl: url, timestamp: new Date().toISOString(), type: "file" };
+    socket.on("chatFile", ({ name: fileName, type, url, replyTo }) => {
+      const msgData = {
+        id: Date.now(),
+        userId: socket.id,
+        role,
+        name,
+        fileName,
+        fileType: type,
+        fileUrl: url,
+        replyTo: replyTo || null,
+        timestamp: new Date().toISOString(),
+        type: "file",
+      };
       messageHistory.push(msgData);
       if (messageHistory.length > MAX_HISTORY) messageHistory.shift();
       io.emit("message", msgData);
@@ -59,7 +80,8 @@ module.exports = (io) => {
     socket.on("disconnect", () => {
       const user = users.get(socket.id);
       if (user) {
-        if (roleOccupancy.get(user.role) === socket.id) roleOccupancy.delete(user.role);
+        if (roleOccupancy.get(user.role) === socket.id)
+          roleOccupancy.delete(user.role);
         users.delete(socket.id);
         io.emit("usersList", Array.from(users.values()));
       }

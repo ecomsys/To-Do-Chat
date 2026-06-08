@@ -1,4 +1,5 @@
 const { verifyCredentials, generateToken } = require("../services/auth.service");
+const roleService = require("../services/role.service"); // Добавили
 
 exports.login = (req, res) => {
   const { role, password, name } = req.body;
@@ -22,7 +23,13 @@ exports.login = (req, res) => {
 
 // Эндпоинт для проверки сессии при перезагрузке страницы
 exports.me = (req, res) => {
-  // req.user уже добавлен в middleware requireAuth
+  // Проверяем, не удалили ли роль пользователя из JSON
+  const roleData = roleService.findRole(req.user.role);
+  if (!roleData) {
+    // Если роль удалена, очищаем куку и отправляем ошибку
+    res.clearCookie("token", { httpOnly: true, sameSite: "lax" });
+    return res.status(401).json({ error: "Роль больше не существует" });
+  }
   res.json({ role: req.user.role, name: req.user.name });
 };
 
