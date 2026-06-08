@@ -26,7 +26,7 @@ export default function ChatInput({
   return (
     <form
       onSubmit={handleSubmit}
-      className="p-3 sm:p-4 bg-slate-800 border-t border-slate-700"
+      className="p-3 sm:p-4 bg-slate-800 border-t border-slate-700 relative z-10 shrink-0"
     >
       <FilePreview
         selectedFile={selectedFile}

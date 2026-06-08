@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import useChatStore from "../store/chatStore";
+import useChatStore from "../store/useChatStore";
 
 import LoadingScreen from "@/components/LoadingScreen";
 import LoginForm from "@/components/LoginForm";
@@ -84,8 +84,14 @@ function App() {
   }
 
   return (
-    <div className="bg-gradient-to-br from-slate-800 to-slate-900">
-      <div className="max-w-6xl mx-auto flex min-h-screen border border-slate-700 ">
+<div className="h-screen bg-gradient-to-br from-slate-800 to-slate-900 overflow-hidden relative">
+  {/* Узор — на заднем плане */}
+  <div className="absolute inset-0 pointer-events-none opacity-10 z-0"
+    style={{
+      backgroundImage: `repeating-linear-gradient(45deg, #cbd5e1 0rem, #cbd5e1 0.0625rem, transparent 0.0625rem, transparent 1.5rem)`
+    }}
+  />
+      <div className="max-w-6xl mx-auto flex h-full border border-slate-700 z-10 relative">
         <Sidebar
           users={users}
           typingUsers={typingUsers}

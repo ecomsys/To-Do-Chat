@@ -102,11 +102,18 @@ const useChatStore = create((set, get) => ({
     };
     const onMessageHistory = (history) => set({ messages: history });
 
+    const onMessageDeleted = ({ messageId }) => {
+      set((state) => ({
+        messages: state.messages.filter((m) => m.id !== messageId),
+      }));
+    };
+
     newSocket.on("messageHistory", onMessageHistory);
     newSocket.on("usersList", onUsersList);
     newSocket.on("message", onMessage);
     newSocket.on("userTyping", onUserTyping);
     newSocket.on("roleTaken", onRoleTaken);
+    newSocket.on("messageDeleted", onMessageDeleted);
 
     if (!hasJoined) {
       newSocket.emit("userJoin", { role, name: name || role });
@@ -120,6 +127,7 @@ const useChatStore = create((set, get) => ({
       newSocket.off("message", onMessage);
       newSocket.off("userTyping", onUserTyping);
       newSocket.off("roleTaken", onRoleTaken);
+      newSocket.off("messageDeleted", onMessageDeleted);
     };
   },
 
@@ -142,6 +150,11 @@ const useChatStore = create((set, get) => ({
       return;
     const { socket } = get();
     if (socket) socket.emit("clearChat");
+  },
+
+  deleteMessage: (messageId) => {
+    const { socket } = get();
+    if (socket) socket.emit("deleteMessage", { messageId });
   },
 
   handleTyping: () => {

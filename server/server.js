@@ -108,6 +108,7 @@ app.get("/download/:filename", (req, res) => {
   });
 });
 
+
 // === WebSocket (Socket.IO) ===
 const serverHttp = http.createServer(app);
 const io = new Server(serverHttp, {
@@ -201,6 +202,34 @@ io.on("connection", (socket) => {
   // --- Индикатор набора текста ---
   socket.on("typing", ({ isTyping }) => {
     socket.broadcast.emit("userTyping", { userId: socket.id, isTyping });
+  });
+
+  // --- Удаление сообщения ---
+  socket.on("deleteMessage", ({ messageId }) => {
+    const user = users.get(socket.id);
+    if (!user) return;
+
+    // Ищем сообщение в истории
+    const msgIndex = messageHistory.findIndex((m) => m.id === messageId);
+    if (msgIndex === -1) return; // Не нашли
+
+    const msgToDelete = messageHistory[msgIndex];
+
+    // Проверка прав: удалять может только автор сообщения ИЛИ Программист
+    const isAuthor = msgToDelete.userId === socket.id;
+    const isProgrammer = user.role === "Программист";
+
+    if (!isAuthor && !isProgrammer) {
+      console.warn(`Попытка удаления чужого сообщения от: ${user.role}`);
+      return;
+    }
+
+    // Удаляем из массива
+    messageHistory.splice(msgIndex, 1);
+    
+    // Оповещаем всех, что сообщение удалено
+    io.emit("messageDeleted", { messageId });
+    console.log(`Сообщение ${messageId} удалено пользователем: ${user.name}`);
   });
 
   // --- Отключение ---
