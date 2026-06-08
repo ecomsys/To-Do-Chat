@@ -1,6 +1,5 @@
-function FilePreview({ selectedFile, filePreview, cancelFile }) {
+export default function FilePreview({ selectedFile, filePreview, cancelFile }) {
   if (!selectedFile) return null;
-
   return (
     <div className="mb-2 flex items-center gap-2 bg-slate-700 py-2 px-3 rounded-lg">
       {filePreview && (
@@ -23,5 +22,3 @@ function FilePreview({ selectedFile, filePreview, cancelFile }) {
     </div>
   );
 }
-
-export default FilePreview;

@@ -1,6 +1,23 @@
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { ROLES } from "../constants";
 
-function LoginForm({
+export default function LoginForm({
   role,
   setRole,
   name,
@@ -8,81 +25,74 @@ function LoginForm({
   password,
   setPassword,
   passwordError,
-  loginError,
+  // loginError,
   handleLogin,
 }) {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-800 to-slate-900 flex items-center justify-center p-4">
-      <div className="bg-white/10 backdrop-blur-md rounded-2xl shadow-xl p-6 sm:p-8 w-full max-w-md">
-        <h1 className="text-2xl sm:text-3xl font-bold text-white mb-6 text-center">
-          Чат команды
-        </h1>
-        <form onSubmit={handleLogin} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-white mb-1">
-              Ваша роль
-            </label>
-            <select
-              value={role}
-              onChange={(e) => {
-                setRole(e.target.value);
-                setPassword("");
-              }}
-              className="w-full px-4 py-2 rounded-lg bg-slate-700 text-white border border-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              required
+      <Card className="w-full max-w-md bg-white/10 backdrop-blur-md border-slate-600">
+        <CardHeader>
+          <CardTitle className="text-2xl text-white">Чат команды</CardTitle>
+          <CardDescription className="text-slate-300">
+            Войдите под своей ролью
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleLogin} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="role" className="text-white">
+                Роль
+              </Label>
+              <Select onValueChange={setRole} value={role}>
+                <SelectTrigger className="bg-slate-700 border-slate-600 text-white">
+                  <SelectValue placeholder="Выберите роль" />
+                </SelectTrigger>
+                <SelectContent>
+                  {ROLES.map((r) => (
+                    <SelectItem key={r} value={r}>
+                      {r}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="password" className="text-white">
+                Пароль
+              </Label>
+              <Input
+                id="password"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="bg-slate-700 border-slate-600 text-white"
+                required
+              />
+              {passwordError && (
+                <p className="text-red-400 text-sm">{passwordError}</p>
+              )}
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="name" className="text-white">
+                Имя (необязательно)
+              </Label>
+              <Input
+                id="name"
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className="bg-slate-700 border-slate-600 text-white"
+              />
+            </div>
+            <Button
+              type="submit"
+              className="w-full bg-blue-600 hover:bg-blue-700"
             >
-              <option value="">Выберите роль</option>
-              {ROLES.map((r) => (
-                <option key={r} value={r}>
-                  {r}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-white mb-1">
-              Пароль
-            </label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="Введите пароль"
-              className="w-full px-4 py-2 rounded-lg bg-slate-700 text-white border border-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              required
-            />
-            {passwordError && (
-              <p className="text-red-400 text-sm mt-1">{passwordError}</p>
-            )}
-            {loginError && (
-              <p className="text-red-400 text-sm mt-1">{loginError}</p>
-            )}
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-white mb-1">
-              Имя (необязательно)
-            </label>
-            <input
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="Ваше имя"
-              className="w-full px-4 py-2 rounded-lg bg-slate-700 text-white border border-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-
-          <button
-            type="submit"
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded-lg transition"
-          >
-            Войти в чат
-          </button>
-        </form>
-      </div>
+              Войти в чат
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
     </div>
   );
 }
-
-export default LoginForm;

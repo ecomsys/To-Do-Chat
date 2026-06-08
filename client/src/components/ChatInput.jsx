@@ -1,6 +1,11 @@
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import FilePreview from "./FilePreview";
 
-function ChatInput({
+// Импортируем иконки из Lucide
+import { Paperclip, Send, Loader2 } from "lucide-react";
+
+export default function ChatInput({
   selectedFile,
   filePreview,
   inputMessage,
@@ -10,6 +15,7 @@ function ChatInput({
   handleTyping,
   sendMessage,
   sendFile,
+  uploadingFile,
 }) {
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -27,34 +33,57 @@ function ChatInput({
         filePreview={filePreview}
         cancelFile={cancelFile}
       />
-      <div className="flex gap-2">
-        <label className="cursor-pointer bg-slate-700 hover:bg-slate-600 text-white py-2 px-4 rounded-full active:scale-95 transition">
-          📎
-          <input
-            type="file"
-            className="hidden"
-            onChange={handleFileChange}
-          />
-        </label>
+      <div className="flex gap-2 items-center">
+        {/* Кнопка прикрепления файла */}
+        <Button
+          type="button"
+          variant="outline"
+          size="icon"
+          onClick={() => document.getElementById("fileInput").click()}
+          disabled={uploadingFile}
+          className="shrink-0 h-10 w-10 rounded-full " // Чтобы кнопка не сжималась
+        >
+          <Paperclip className="h-4 w-4" />
+        </Button>
         <input
-          type="text"
+          id="fileInput"
+          type="file"
+          className="hidden"
+          onChange={handleFileChange}
+          disabled={uploadingFile}
+        />
+
+        {/* Поле ввода */}
+        <Input
           value={inputMessage}
           onChange={(e) => {
             setInputMessage(e.target.value);
             handleTyping();
           }}
           placeholder="Введите сообщение..."
-          className="flex-1 px-3 py-2 sm:px-4 sm:py-2 rounded-full bg-slate-700 text-white border border-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
+          className="h-10 rounded-full flex-1 bg-slate-700 border-slate-600 text-white"
+          disabled={uploadingFile}
         />
-        <button
+        {/* Кнопка отправки */}
+        <Button
           type="submit"
-          className="px-3 py-2 sm:px-4 sm:py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-full transition active:scale-95 text-sm sm:text-base"
+          disabled={uploadingFile}
+          className="h-10 rounded-full shrink-0 gap-1.5 text-green-500"
         >
-          Отправить
-        </button>
+          {uploadingFile ? (
+            <>
+              <Loader2 className="h-4 w-4 animate-spin" />{" "}
+              {/* Спиннер при загрузке */}
+              <span className="hidden sm:inline">Загрузка...</span>
+            </>
+          ) : (
+            <>
+              <Send className="h-4 w-4" /> {/* Иконка отправки */}
+              <span className="hidden sm:inline">Отправить</span>
+            </>
+          )}
+        </Button>
       </div>
     </form>
   );
 }
-
-export default ChatInput;

@@ -66,12 +66,30 @@ export default defineConfig({
       },
       workbox: {
         globPatterns: ["**/*.{js,css,html,ico,png,svg,woff2}"],
+        
+        // Продакшен
+        // runtimeCaching: [
+        //   {
+        //     urlPattern: /^https:\/\/todo\.ecomsys\.ru\/socket\.io\/.*/i,
+        //     handler: "NetworkOnly",
+        //   },
+        // ],
+
+        // деврежим
         runtimeCaching: [
           {
-            urlPattern: /^https:\/\/todo\.ecomsys\.ru\/socket\.io\/.*/i,
+            urlPattern: /\/socket\.io\/.*/i,
             handler: "NetworkOnly",
           },
-        ],
+          {
+            urlPattern: /\/uploads\/.*/i,
+            handler: "NetworkOnly",
+          },
+          {
+            urlPattern: /\/download\/.*/i, // ← ДОБАВИТЬ ЭТО!
+            handler: "NetworkOnly",
+          },
+        ],       
       },
       devOptions: {
         enabled: true,
@@ -93,6 +111,7 @@ export default defineConfig({
       "/upload": "http://localhost:5001",
       "/clear-uploads": "http://localhost:5001", // ← ДОБАВИТЬ
       "/uploads": "http://localhost:5001", // ← на всякий случай
+      "/download": "http://localhost:5001",
       "/socket.io": { target: "http://localhost:5001", ws: true },
     },
   },

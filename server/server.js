@@ -7,74 +7,72 @@ const path = require("path");
 const fs = require("fs");
 
 const app = express();
-app.use(cors());
-app.use(express.json());
+const PORT = 5001;
 
+// === Конфигурация ===
 const ROLE_PASSWORDS = {
-  Дизайнер: 'designer_01',
-  Заказчик: 'zakazchik_01',
-  Программист: 'programmer_01',
+  Дизайнер: "designer_01",
+  Заказчик: "zakazchik_01",
+  Программист: "programmer_01",
 };
 
-// === Папка для загруженных файлов ===
+const MAX_HISTORY = 100;
+const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB
 const uploadDir = path.join(__dirname, "uploads");
-if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
-app.use("/uploads", express.static(uploadDir));
 
-// === Multer ===
+// === Инициализация папки для загрузок ===
+if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
+
+// === Middleware ===
+app.use(cors());
+app.use(express.json({ limit: MAX_FILE_SIZE }));
+app.use(express.urlencoded({ extended: true, limit: MAX_FILE_SIZE }));
+app.use("/uploads", express.static(uploadDir)); // Раздача статики
+
+// === Настройка Multer (загрузка файлов) ===
 const storage = multer.diskStorage({
   destination: (req, file, cb) => cb(null, uploadDir),
   filename: (req, file, cb) => {
     const unique = Date.now() + "-" + Math.round(Math.random() * 1e9);
-    const ext = path.extname(file.originalname);
-    cb(null, unique + ext);
+    cb(null, unique + path.extname(file.originalname));
   },
 });
-const upload = multer({ storage, limits: { fileSize: 10 * 1024 * 1024 } });
+const upload = multer({ storage, limits: { fileSize: MAX_FILE_SIZE } });
 
-// === Обработка загрузки файла ===
-app.use(express.json({ limit: "10mb" }));
-app.use(express.urlencoded({ extended: true, limit: "10mb" }));
+// === API Роуты ===
 
-// Обработчик загрузки файла
+// Загрузка файла на сервер
 app.post("/upload", upload.single("file"), (req, res) => {
   if (!req.file) return res.status(400).json({ error: "Файл не загружен" });
 
-  // 🔧 ИСПРАВЛЕНИЕ: Multer прочитал UTF-8 байты как latin1.
-  // Берём эти "испорченные" символы, превращаем обратно в исходные байты (через latin1),
-  // а затем декодируем их уже правильно как UTF-8.
+  // Исправление кодировки кириллицы: Multer парсит имена как latin1, конвертируем обратно в utf-8
   const originalName = Buffer.from(req.file.originalname, "latin1").toString(
     "utf8",
   );
+  const fileUrl = `${req.protocol}://${req.get("host")}/uploads/${req.file.filename}`;
 
-  const fileUrl = `/uploads/${req.file.filename}`;
-  // Отдаём имя файла как есть — JSON/Socket.IO отлично справятся с кириллицей
   res.json({ url: fileUrl, name: originalName, type: req.file.mimetype });
 });
 
-
-// === Очистка папки uploads (только для программиста) ===
+// Очистка папки uploads (только для Программиста)
 app.post("/clear-uploads", (req, res) => {
   const { role, password } = req.body;
-
-  if (role !== "Программист") {
+  if (role !== "Программист" || password !== ROLE_PASSWORDS[role]) {
     return res.status(403).json({ error: "Доступ запрещён" });
-  }
-  if (password !== ROLE_PASSWORDS[role]) {
-    return res.status(403).json({ error: "Неверный пароль" });
   }
 
   try {
     const files = fs.readdirSync(uploadDir);
     let deleted = 0;
+
     for (const file of files) {
       const filePath = path.join(uploadDir, file);
-      const stat = fs.statSync(filePath);
-      if (stat.isFile()) {
+      if (fs.statSync(filePath).isFile()) {
         fs.unlinkSync(filePath);
         deleted++;
       }
     }
+
     console.log(`Папка uploads очищена: удалено ${deleted} файлов`);
     res.json({ success: true, deleted });
   } catch (err) {
@@ -83,8 +81,34 @@ app.post("/clear-uploads", (req, res) => {
   }
 });
 
+// Принудительное скачивание файла (с оригинальным именем)
+app.get("/download/:filename", (req, res) => {
+  const filename = req.params.filename;
 
-// === Сокеты ===
+  // Защита от path traversal (допускаем только безопасные символы)
+  const safePattern = /^[a-zA-Z0-9._-]+$/;
+  if (!safePattern.test(filename))
+    return res.status(400).send("Некорректное имя файла");
+
+  const filePath = path.join(uploadDir, filename);
+  if (!fs.existsSync(filePath)) return res.status(404).send("Файл не найден");
+
+  // Восстановление оригинального имени из query-параметра
+  let originalName = req.query.original || filename;
+  try {
+    originalName = decodeURIComponent(originalName);
+  } catch (e) {
+    /* оставляем как есть */
+  }
+  originalName = path.basename(originalName); // Отсекаем возможные пути, оставляем только имя
+
+  // Express сам определит MIME-тип и выставит заголовки для скачивания
+  res.download(filePath, originalName, (err) => {
+    if (err) console.error("Ошибка при скачивании файла:", err);
+  });
+});
+
+// === WebSocket (Socket.IO) ===
 const serverHttp = http.createServer(app);
 const io = new Server(serverHttp, {
   cors: {
@@ -96,44 +120,48 @@ const io = new Server(serverHttp, {
   },
 });
 
-// Хранилище
+// Хранилище состояния
 const users = new Map();
 const roleOccupancy = new Map();
 const messageHistory = [];
-const MAX_HISTORY = 100;
 
 io.on("connection", (socket) => {
-  console.log("Пользователь подключился:", socket.id);
+  console.log("Подключение:", socket.id);
 
+  // --- Авторизация и роли ---
   socket.on("userJoin", ({ role, name }) => {
     if (roleOccupancy.has(role) && roleOccupancy.get(role) !== socket.id) {
-      socket.emit("roleTaken", { message: `Роль "${role}" уже занята.` });
-      return;
+      return socket.emit("roleTaken", {
+        message: `Роль "${role}" уже занята.`,
+      });
     }
+
     roleOccupancy.set(role, socket.id);
     const user = { id: socket.id, role, name: name || role };
     users.set(socket.id, user);
+
     io.emit("usersList", Array.from(users.values()));
     socket.emit("messageHistory", messageHistory);
     socket.emit("joined", { role, name });
   });
 
+  // --- Очистка чата ---
   socket.on("clearChat", () => {
     const user = users.get(socket.id);
-    if (!user) return;
-    if (user.role !== "Программист") {
-      console.warn(`Попытка очистки чата от не-программиста: ${user.role}`);
-      return;
-    }
-    messageHistory.length = 0; // очищаем массив
-    io.emit("messageHistory", []); // рассылаем пустую историю всем
-    io.emit("chatCleared", { by: user.name }); // опционально — уведомление
-    console.log(`Чат очищен пользователем: ${user.name}`);
+    if (!user || user.role !== "Программист")
+      return console.warn(`Попытка очистки от: ${user?.role}`);
+
+    messageHistory.length = 0;
+    io.emit("messageHistory", []);
+    io.emit("chatCleared", { by: user.name });
+    console.log(`Чат очищен: ${user.name}`);
   });
 
+  // --- Сообщения ---
   socket.on("chatMessage", ({ message }) => {
     const user = users.get(socket.id);
     if (!user) return;
+
     const msgData = {
       id: Date.now(),
       userId: socket.id,
@@ -143,6 +171,7 @@ io.on("connection", (socket) => {
       timestamp: new Date().toISOString(),
       type: "text",
     };
+
     messageHistory.push(msgData);
     if (messageHistory.length > MAX_HISTORY) messageHistory.shift();
     io.emit("message", msgData);
@@ -151,6 +180,7 @@ io.on("connection", (socket) => {
   socket.on("chatFile", ({ name, type, url }) => {
     const user = users.get(socket.id);
     if (!user) return;
+
     const msgData = {
       id: Date.now(),
       userId: socket.id,
@@ -162,15 +192,18 @@ io.on("connection", (socket) => {
       timestamp: new Date().toISOString(),
       type: "file",
     };
+
     messageHistory.push(msgData);
     if (messageHistory.length > MAX_HISTORY) messageHistory.shift();
     io.emit("message", msgData);
   });
 
+  // --- Индикатор набора текста ---
   socket.on("typing", ({ isTyping }) => {
     socket.broadcast.emit("userTyping", { userId: socket.id, isTyping });
   });
 
+  // --- Отключение ---
   socket.on("disconnect", () => {
     const user = users.get(socket.id);
     if (user) {
@@ -179,11 +212,11 @@ io.on("connection", (socket) => {
       users.delete(socket.id);
       io.emit("usersList", Array.from(users.values()));
     }
-    console.log("Пользователь отключился:", socket.id);
+    console.log("Отключение:", socket.id);
   });
 });
 
-// === Раздача статики собранного клиента (продакшн) ===
+// === Раздача статики клиента (Продакшн) ===
 const clientDistPath = path.join(__dirname, "../client/dist");
 if (fs.existsSync(clientDistPath)) {
   app.use(express.static(clientDistPath));
@@ -192,7 +225,7 @@ if (fs.existsSync(clientDistPath)) {
   });
 }
 
-const PORT = 5001;
+// === Запуск сервера ===
 serverHttp.listen(PORT, () =>
-  console.log(`Сервер чата запущен на порту ${PORT}`),
+  console.log(`Сервер запущен на http://localhost:${PORT}`),
 );
