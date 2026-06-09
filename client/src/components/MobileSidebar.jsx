@@ -82,7 +82,13 @@ export default function MobileSidebar({
 
                 {/* ИСПОЛЬЗУЕМ КОМПОНЕНТ С ТАЙМЕРОМ */}
                 {canCall && (
-                  <UserCallDropdown user={user} makeCall={makeCall} visible={true} />
+                  <UserCallDropdown
+                    user={user}
+                    makeCall={makeCall}
+                    visible={true}
+                    mobileMenuOpen={mobileMenuOpen}
+                    toggleMobileMenu={toggleMobileMenu}
+                  />
                 )}
               </div>
             );
