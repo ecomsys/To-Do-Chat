@@ -10,6 +10,7 @@ export const ICE_SERVERS = [
     username: "todochat",               // Логин из конфига Coturn
     credential: "A*f5k*w9XwHB",  // Пароль из конфига Coturn
   },
+  
   // Резервный через домен (если домен привязан к IP)
   {
     urls: "turn:todochat.ecomsys.ru:3478", 

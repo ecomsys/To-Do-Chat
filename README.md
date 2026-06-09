@@ -1,19 +1,42 @@
-# Простой To Do с живым обновлением без авторизации
+# Простой To-Do Chat с живым обновлением(socket-io) и авторизацией (jwtwebtoken + httpOnly)
 
 ```bash
-todo-app/
+todo-chat/
 ├── client/
 │   ├── public/
 │   ├── src/
 │   ├── index.html
 │   ├── package.json
 │   ├── vite.config.js
+│   ├── README.md
 │   └── ...
 ├── server/
-│   ├── server.js
+│   ├── index.js
 │   ├── package.json
-│   ├── data.json (можно добавить в .gitignore, чтобы не коммитить)
+│   ├── nodemon.json 
+│   ├── README.md
 │   └── ...
 ├── .gitignore
 └── README.md
 ```
+
+# Чтобы запустить разработку выполни несколько шагов:
+
+## ШАГ.1 открой один терминал и установи зависимости для клиента
+
+```bash
+cd client
+npm i
+npm run dev
+```
+
+## ШАГ.2 открой второй терминал и установи зависимости для сервера
+
+```bash
+cd server
+npm i
+npm run dev
+```
+
+
+
