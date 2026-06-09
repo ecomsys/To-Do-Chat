@@ -14,6 +14,8 @@ const roleRoutes = require("./src/routes/role.routes");
 
 const app = express();
 
+app.set('trust proxy', true);
+
 // 1. Создаем HTTP сервер и Socket.IO ПЕРВЫМ ДЕЛОМ
 const serverHttp = http.createServer(app);
 
@@ -31,6 +33,7 @@ const io = new Server(serverHttp, {
   },
 });
 app.set('io', io);
+
 
 // 2. Создаем общую мапу занятых ролей
 const roleOccupancy = new Map();

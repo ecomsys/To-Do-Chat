@@ -45,19 +45,19 @@ function MessageItem({ msg }) {
   const [viewerOpen, setViewerOpen] = useState(false);
   const downloadRef = useRef(null);
 
-  // Данные из стора
-  const currentSocketId = useChatStore((state) => state.socket?.id);
+  // Данные из стора (УБРАЛИ currentSocketId)
   const currentRole = useChatStore((state) => state.role);
   const deleteMessage = useChatStore((state) => state.deleteMessage);
   const setReplyingTo = useChatStore((state) => state.setReplyingTo);
 
-  // Проверка прав на удаление
-  // Проверка прав на удаление
-  const isAuthor = msg.userId === currentSocketId;
+  // Проверка прав: сравниваем по РОЛИ, а не по socket.id!
+  // Роль не меняется при перезагрузке страницы, в отличие от socket.id
+  const isAuthor = msg.role === currentRole;
   const isProgrammer = currentRole === "Программист";
   const canDelete = isAuthor || isProgrammer;
 
-   const canReply = !isAuthor && !msg.replyTo; 
+  // Можно отвечать на любое чужое сообщение (убрал !msg.replyTo, чтобы можно было цитировать цитаты)
+    const canReply = !isAuthor && !msg.replyTo;
 
   // Ключевая переменная: сообщение от программиста?
   const isProgrammerMsg = msg.role === "Программист";
@@ -178,7 +178,7 @@ function MessageItem({ msg }) {
                 </span>
               )}
 
-              {/* Кнопка "Ответить" (только для чужих сообщений) */}              
+              {/* Кнопка "Ответить" (только для чужих сообщений) */}
               {canReply && (
                 <button
                   onClick={() => setReplyingTo(msg)}
@@ -188,7 +188,6 @@ function MessageItem({ msg }) {
                   <Reply className="w-4 h-4" />
                 </button>
               )}
-              
 
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -327,7 +326,7 @@ function MessageItem({ msg }) {
 
           {/* Блок действий (появляется при наведении) */}
           {(canReply || canDelete) && (
-             <div className="flex items-center gap-1 mt-2 justify-end">
+            <div className="flex items-center gap-1 mt-2 justify-end">
               {/* Кнопка "Ответить" (видна всем на чужих сообщениях) */}
               {canReply && (
                 <button

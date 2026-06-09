@@ -6,7 +6,7 @@ const uploadDir = path.join(__dirname, "../../uploads");
 exports.uploadFile = (req, res) => {
   if (!req.file) return res.status(400).json({ error: "Файл не загружен" });
   const originalName = Buffer.from(req.file.originalname, "latin1").toString("utf8");
-  const fileUrl = `${req.protocol}://${req.get("host")}/uploads/${req.file.filename}`;
+  const fileUrl = `/uploads/${req.file.filename}`;
   res.json({ url: fileUrl, name: originalName, type: req.file.mimetype });
 };
 
