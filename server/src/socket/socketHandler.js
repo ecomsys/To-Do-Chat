@@ -5,6 +5,10 @@ module.exports = (io, roleOccupancy) => {
   const messageHistory = [];
   const MAX_HISTORY = 100;
 
+  // === НОВОЕ: Хранилище активных звонков для обработки дисконнектов ===
+  // Формат: callerSocketId -> calleeSocketId (и наоборот)
+  const activeCalls = new Map();
+
   io.on("connection", (socket) => {
     const { role, name } = socket.user;
 
@@ -37,6 +41,42 @@ module.exports = (io, roleOccupancy) => {
       if (!isAuthor && !isProgrammer) return;
       messageHistory.splice(msgIndex, 1);
       io.emit("messageDeleted", { messageId });
+    });
+
+    // === ВИДЕО СВЯЗЬ (Сигнализация) ===
+
+    socket.on("call-user", ({ targetSocketId, offer, callType }) => {
+     
+      io.to(targetSocketId).emit("incoming-call", {
+        from: socket.id,
+        offer,
+        callerName: name,
+        callerRole: role,
+        callType: callType || "video", // <--- ПЕРЕДАЕМ callType (по умолчанию video для совместимости)
+      });
+    });
+
+    socket.on("answer-call", ({ targetSocketId, answer }) => {
+      io.to(targetSocketId).emit("call-answered", { from: socket.id, answer });
+
+      //  Запоминаем, что они в активном звонке ===
+      activeCalls.set(socket.id, targetSocketId);
+      activeCalls.set(targetSocketId, socket.id);
+    });
+
+    socket.on("ice-candidate", ({ targetSocketId, candidate }) => {
+      io.to(targetSocketId).emit("ice-candidate", {
+        from: socket.id,
+        candidate,
+      });
+    });
+
+    socket.on("end-call", ({ targetSocketId }) => {
+      io.to(targetSocketId).emit("call-ended");
+
+      // === Удаляем из списка активных звонков ===
+      activeCalls.delete(socket.id);
+      activeCalls.delete(targetSocketId);
     });
 
     socket.on("chatMessage", ({ message, replyTo }) => {
@@ -84,6 +124,14 @@ module.exports = (io, roleOccupancy) => {
           roleOccupancy.delete(user.role);
         users.delete(socket.id);
         io.emit("usersList", Array.from(users.values()));
+      }
+
+      // === Если юзер был в звонке и отключился, завершаем звонок за него ===
+      if (activeCalls.has(socket.id)) {
+        const partnerSocketId = activeCalls.get(socket.id);
+        io.to(partnerSocketId).emit("call-ended"); // Говорим собеседнику, что звонок окончен
+        activeCalls.delete(socket.id);
+        activeCalls.delete(partnerSocketId); // Очищаем память
       }
     });
   });
