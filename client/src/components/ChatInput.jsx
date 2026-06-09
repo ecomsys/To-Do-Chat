@@ -88,6 +88,13 @@ export default function ChatInput({
             setInputMessage(e.target.value);
             handleTyping();
           }}
+            onKeyDown={(e) => {
+            // Если нажат Enter и НЕ зажат Shift (Shift+Enter для переноса строки, если будешь делать textarea)
+            if (e.key === "Enter" && !e.shiftKey) {
+              e.preventDefault(); // Предотвращаем стандартный перевод строки или пик звука
+              handleSubmit(e);    // Отправляем форму
+            }
+          }}
           placeholder="Введите сообщение..."
           className="h-10 rounded-full flex-1 bg-slate-700 border-slate-600 text-white"
           disabled={uploadingFile}
