@@ -16,9 +16,16 @@ const app = express();
 
 // 1. Создаем HTTP сервер и Socket.IO ПЕРВЫМ ДЕЛОМ
 const serverHttp = http.createServer(app);
+
+// Массив разрешенных адресов
+const allowedOrigins = [
+  "http://localhost:3000", // Для локалки
+  "https://todochat.ecomsys.ru" // Для прода
+];
+
 const io = new Server(serverHttp, {
   cors: {
-    origin: "http://localhost:3000",
+    origin: allowedOrigins,
     methods: ["GET", "POST"],
     credentials: true,
   },
@@ -29,7 +36,7 @@ app.set('io', io);
 const roleOccupancy = new Map();
 
 // 3. Подключаем Middlewares (ОБЯЗАТЕЛЬНО ДО РОУТОВ!)
-app.use(cors({ origin: "http://localhost:3000", credentials: true })); // Добавил CORS для HTTP
+app.use(cors({ origin: allowedOrigins, credentials: true })); // Добавил CORS для HTTP
 app.use(express.json()); // ВАЖНО: До роутов, чтобы req.body работал
 app.use(cookieParser());
 
