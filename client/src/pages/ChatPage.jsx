@@ -6,6 +6,8 @@ import ChatInput from "@/components/ChatInput";
 import useChatStore from "../store/useChatStore";
 import { PROGRAMMER_ROLE } from "../constants";
 
+import VideoCallModal from "@/components/VideoCallModal";
+
 export default function ChatPage() {
   const role = useChatStore((state) => state.role);
   const isProgrammer = role === PROGRAMMER_ROLE;
@@ -34,6 +36,9 @@ export default function ChatPage() {
   return (
     <div className="flex h-full border border-slate-700 z-10 relative w-full">
       <Sidebar users={users} typingUsers={typingUsers} handleLogout={handleLogout} />
+
+      <VideoCallModal/>
+      
       <div className="flex-1 flex flex-col min-w-0">
         <ChatHeader
           role={role}

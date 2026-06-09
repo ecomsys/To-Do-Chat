@@ -3,12 +3,13 @@ import {
   SheetContent,
   SheetHeader,
   SheetTitle,
-  SheetDescription
+  SheetDescription,
 } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { getRoleColor } from "../constants";
 import useChatStore from "../store/useChatStore";
+import { UserCallDropdown } from "./ui/dropdown-sidebar-call";
 
 export default function MobileSidebar({
   mobileMenuOpen,
@@ -18,10 +19,15 @@ export default function MobileSidebar({
   handleLogout,
 }) {
   const messages = useChatStore((state) => state.messages);
+  const currentSocketId = useChatStore((state) => state.socket?.id);
+  const makeCall = useChatStore((state) => state.makeCall);
 
   return (
     <Sheet open={mobileMenuOpen} onOpenChange={toggleMobileMenu}>
-      <SheetContent side="left" className="bg-slate-800 border-slate-700 p-0 flex flex-col">
+      <SheetContent
+        side="left"
+        className="bg-slate-800 border-slate-700 p-0 flex flex-col"
+      >
         <SheetHeader className="p-4 border-b border-slate-700">
           <SheetTitle className="text-white">Участники</SheetTitle>
           <SheetDescription className="sr-only">
@@ -31,18 +37,25 @@ export default function MobileSidebar({
         <div className="flex-1 overflow-y-auto p-4 space-y-3 custom-scroll">
           {users.map((user) => {
             // ИСПРАВЛЕНО: Ищем по role
-            const lastMsg = [...messages].reverse().find((m) => m.role === user.role);
+            const lastMsg = [...messages]
+              .reverse()
+              .find((m) => m.role === user.role);
             let lastMsgText = "";
             if (lastMsg) {
-              lastMsgText = lastMsg.type === "file" ? `📎 ${lastMsg.fileName}` : lastMsg.message;
+              lastMsgText =
+                lastMsg.type === "file"
+                  ? `📎 ${lastMsg.fileName}`
+                  : lastMsg.message;
             }
 
+            const canCall = user.id !== currentSocketId;
+
             return (
-              <div key={user.id} className="flex items-start gap-3">
+              <div key={user.id} className="flex items-start gap-2.5">
                 <Avatar className="w-8 h-8">
-                  <AvatarFallback 
+                  <AvatarFallback
                     className="text-xs text-white"
-                    style={{ backgroundColor: getRoleColor(user.role) }}                    
+                    style={{ backgroundColor: getRoleColor(user.role) }}
                   >
                     {user.name?.[0] || "?"}
                   </AvatarFallback>
@@ -50,7 +63,9 @@ export default function MobileSidebar({
                 <div className="flex-1 min-w-0">
                   <div className="text-sm text-white truncate">
                     {user.name}{" "}
-                    <span className="text-slate-400 text-xs">({user.role})</span>
+                    <span className="text-slate-400 text-xs">
+                      ({user.role})
+                    </span>
                   </div>
                   {typingUsers[user.id] ? (
                     <div className="text-xs text-blue-400 animate-pulse">
@@ -64,6 +79,11 @@ export default function MobileSidebar({
                     )
                   )}
                 </div>
+
+                {/* ИСПОЛЬЗУЕМ КОМПОНЕНТ С ТАЙМЕРОМ */}
+                {canCall && (
+                  <UserCallDropdown user={user} makeCall={makeCall} visible={true} />
+                )}
               </div>
             );
           })}

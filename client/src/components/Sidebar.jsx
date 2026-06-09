@@ -3,9 +3,12 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { getRoleColor } from "../constants";
 import useChatStore from "../store/useChatStore";
+import { UserCallDropdown } from "./ui/dropdown-sidebar-call";
 
 export default function Sidebar({ users, typingUsers, handleLogout }) {
   const messages = useChatStore((state) => state.messages);
+  const currentSocketId = useChatStore((state) => state.socket?.id);
+  const makeCall = useChatStore((state) => state.makeCall);
 
   return (
     <div className="hidden sm:flex w-50 lg:w-64 flex-col bg-slate-800 border-r border-slate-700">
@@ -13,30 +16,42 @@ export default function Sidebar({ users, typingUsers, handleLogout }) {
         <CardHeader className="pb-2">
           <CardTitle className="text-white flex justify-between items-center">
             Участники
-            <Button variant="destructive" size="sm" onClick={handleLogout} className="rounded-full">
+            <Button
+              variant="destructive"
+              size="sm"
+              onClick={handleLogout}
+              className="rounded-full"
+            >
               Выйти
             </Button>
           </CardTitle>
         </CardHeader>
         <CardContent className="flex-1 overflow-y-auto space-y-3 custom-scroll">
           {users.map((user) => {
-            // ИСПРАВЛЕНО: Ищем по role, а не по userId, так как socket.id меняется при реконнектах
-            const lastMsg = [...messages].reverse().find((m) => m.role === user.role);
+            const lastMsg = [...messages]
+              .reverse()
+              .find((m) => m.role === user.role);
             let lastMsgText = "";
             if (lastMsg) {
-              lastMsgText = lastMsg.type === "file" ? `📎 ${lastMsg.fileName}` : lastMsg.message;
+              lastMsgText =
+                lastMsg.type === "file"
+                  ? `📎 ${lastMsg.fileName}`
+                  : lastMsg.message;
             }
 
+            const canCall = user.id !== currentSocketId;
+
             return (
-              <div key={user.id} className="flex items-start gap-3">
+              <div key={user.id} className="flex items-center gap-2.5 group">
                 <Avatar className="w-8 h-8">
-                  <AvatarFallback 
+                  <AvatarFallback
                     className="text-xs text-white"
                     style={{ backgroundColor: getRoleColor(user.role) }}
                   >
                     {user.name?.[0] || "?"}
                   </AvatarFallback>
                 </Avatar>
+
                 <div className="flex-1 min-w-0">
                   <div className="text-xs text-white truncate">
                     {user.name}{" "}
@@ -54,6 +69,15 @@ export default function Sidebar({ users, typingUsers, handleLogout }) {
                     )
                   )}
                 </div>
+
+                {/* ИСПОЛЬЗУЕМ КОМПОНЕНТ С ТАЙМЕРОМ */}
+                {canCall && (
+                  <UserCallDropdown
+                    user={user}
+                    makeCall={makeCall}
+                    visible={true}
+                  />
+                )}
               </div>
             );
           })}
