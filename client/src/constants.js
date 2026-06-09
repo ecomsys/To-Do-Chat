@@ -12,6 +12,8 @@ export const ICE_SERVERS = [
   // },
 ];
 
+export const CALL_TIMEOUT_MS = 30000;  // сколько идет сигнал вызова при звонке в м/с
+
 export const PROGRAMMER_ROLE = "Программист";
 
 // Дефолтные цвета для стандартных ролей и генератор для новых

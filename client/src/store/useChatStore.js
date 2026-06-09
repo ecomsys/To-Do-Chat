@@ -1,15 +1,16 @@
 import { create } from "zustand";
 import { getSocket, resetSocket } from "../socket";
 import { ICE_SERVERS } from "../constants";
+import { CALL_TIMEOUT_MS } from "../constants";
 
 // Глобальные переменные для WebRTC (не в стейте, чтобы не вызывать лишние рендеры)
 let peerConnection = null;
 let localStream = null;
 let iceCandidatesQueue = [];
+let callTimeoutId = null;
+
 const configuration = { iceServers: ICE_SERVERS };
 
-let callTimeoutId = null;
-const CALL_TIMEOUT_MS = 10000;
 
 const useChatStore = create((set, get) => ({
   callState: "idle", // 'idle' | 'offering' | 'ringing' | 'active'
