@@ -38,7 +38,7 @@ function App() {
   if (step === "loading") return <LoadingScreen />;
 
   return (
-    <div className="h-screen bg-gradient-to-br from-slate-800 to-slate-900 overflow-hidden relative">
+    <div className="h-dvh bg-gradient-to-br from-slate-800 to-slate-900 overflow-hidden relative">
       {/* Фоновый узор */}
       <div
         className="absolute inset-0 pointer-events-none opacity-10 z-0"
