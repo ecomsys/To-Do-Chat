@@ -8,7 +8,6 @@ import { CALL_TIMEOUT_MS } from "../constants";
 
 // --- Логика бейджа PWA и заголовка вкладки ---
 let unreadCount = 0;
-const APP_TITLE = "To-Do Chat";
 let activeNotification = null;
 
 // === НОВОЕ: СИСТЕМНЫЕ УВЕДОМЛЕНИЯ (Фоллбэк для Linux) ===
@@ -45,15 +44,15 @@ const createNotification = (msg) => {
   };
 };
 // ========================================================
-
 const updateBadgeAndTitle = () => {
   if (unreadCount > 0) {
-    if ("setAppBadge" in navigator)
-      navigator.setAppBadge(unreadCount).catch(() => {});
-    document.title = `(${unreadCount}) ${APP_TITLE}`;
+    if ("setAppBadge" in navigator) navigator.setAppBadge(unreadCount).catch(() => {});
+    // Стандарт индустрии: (1) Название
+    document.title = `(${unreadCount}) To-Do Chat`;
   } else {
     if ("clearAppBadge" in navigator) navigator.clearAppBadge().catch(() => {});
-    document.title = APP_TITLE;
+    // Возвращаем чистый заголовок без пробелов в начале
+    document.title = "To-Do Chat";
   }
 };
 

@@ -2,5 +2,9 @@
   "Программист": {
     "password": "$2b$10$3g9iMZ1rbSu51zADZAkJ2e6sfnpGkOeGRqsuW9SBeOeq8OnoqMXNO",
     "name": ""
+  },
+  "Weblegko": {
+    "password": "$2b$10$Ki98ugRF3uTfdL6LxM78SOFMrLTZR6QWWN0hA4SpCom0BAYuM1oWm",
+    "name": "1"
   }
 }
