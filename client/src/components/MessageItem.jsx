@@ -333,48 +333,58 @@ function MessageItem({ msg }) {
 
           {/* Блок действий (появляется при наведении) */}
           {(canReply || canDelete || canEdit) && (
-            <div className="flex items-center gap-1 mt-2 justify-end">
-              {/* Кнопка "Ответить" (видна всем на чужих сообщениях) */}
-              {canReply && (
-                <button
-                  onClick={() => setReplyingTo(msg)}
-                  className="p-1 text-slate-400 hover:text-blue-400 cursor-pointer rounded transition-colors"
-                  title="Ответить"
-                >
-                  <Reply className="w-4 h-4" />
-                </button>
+            <div
+              className={`flex items-center gap-1 mt-2 ${msg.isEdited ? "justify-between" : "justify-end"}`}
+            >
+              {msg.isEdited && (
+                <div className="text-[0.75rem] text-slate-500 ml-1 italic">
+                  (изменено)
+                </div>
               )}
 
-              {/* Меню с удалением (видно только тем, кому разрешено) */}
-              {canDelete && (
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <button className="p-1 text-blue-400 hover:text-blue-300 cursor-pointer rounded inline-flex items-center transition-colors focus:outline-none">
-                      <MoreVertical className="w-4 h-4" />
-                    </button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent
-                    align={isProgrammerMsg ? "end" : "start"}
-                    className="min-w-max"
+              <div className="flex items-center gap-1">
+                {/* Кнопка "Ответить" (видна всем на чужих сообщениях) */}
+                {canReply && (
+                  <button
+                    onClick={() => setReplyingTo(msg)}
+                    className="p-1 text-slate-400 hover:text-blue-400 cursor-pointer rounded transition-colors"
+                    title="Ответить"
                   >
-                    <DropdownMenuItem
-                      variant="primary"
-                      onClick={() => {
-                        setInputMessage(msg.message); // Переносим текст в инпут
-                        setEditingMessage(msg); // Включаем режим редактирования
-                      }}
+                    <Reply className="w-4 h-4" />
+                  </button>
+                )}
+
+                {/* Меню с удалением (видно только тем, кому разрешено) */}
+                {canDelete && (
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <button className="p-1 text-blue-400 hover:text-blue-300 cursor-pointer rounded inline-flex items-center transition-colors focus:outline-none">
+                        <MoreVertical className="w-4 h-4" />
+                      </button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent
+                      align={isProgrammerMsg ? "end" : "start"}
+                      className="min-w-max"
                     >
-                      <Pencil className="w-4 h-4 mr-2" /> Редактировать
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      variant="destructive"
-                      onClick={() => deleteMessage(msg.id)}
-                    >
-                      <Trash2 className="w-4 h-4 mr-2" /> Удалить
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              )}
+                      <DropdownMenuItem
+                        variant="primary"
+                        onClick={() => {
+                          setInputMessage(msg.message); // Переносим текст в инпут
+                          setEditingMessage(msg); // Включаем режим редактирования
+                        }}
+                      >
+                        <Pencil className="w-4 h-4 mr-2" /> Редактировать
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        variant="destructive"
+                        onClick={() => deleteMessage(msg.id)}
+                      >
+                        <Trash2 className="w-4 h-4 mr-2" /> Удалить
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                )}
+              </div>
             </div>
           )}
         </div>
