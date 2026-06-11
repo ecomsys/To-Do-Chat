@@ -9,6 +9,42 @@ import { CALL_TIMEOUT_MS } from "../constants";
 // --- Логика бейджа PWA и заголовка вкладки ---
 let unreadCount = 0;
 const APP_TITLE = "To-Do Chat";
+let activeNotification = null;
+
+// === НОВОЕ: СИСТЕМНЫЕ УВЕДОМЛЕНИЯ (Фоллбэк для Linux) ===
+const sendSystemNotification = (msg) => {
+  // Проверяем, поддерживает ли браузер уведомления и дал ли юзер разрешение
+  if (!("Notification" in window) || Notification.permission === "denied")
+    return;
+
+  if (Notification.permission === "granted") {
+    createNotification(msg);
+  } else if (Notification.permission !== "denied") {
+    // Если разрешения еще нет, запрашиваем и сразу показываем
+    Notification.requestPermission().then((permission) => {
+      if (permission === "granted") createNotification(msg);
+    });
+  }
+};
+
+const createNotification = (msg) => {
+  const title = `Новое сообщение от ${msg.name}`;
+  const options = {
+    body: msg.type === "file" ? `📎 ${msg.fileName}` : msg.message,
+    icon: "/android-chrome-192x192.png",
+  };
+
+  // Сохраняем уведомление в переменную
+  activeNotification = new Notification(title, options);
+
+  // По клику на уведомление открываем окно
+  activeNotification.onclick = () => {
+    window.focus();
+    activeNotification.close(); // Закрываем при клике
+    activeNotification = null;
+  };
+};
+// ========================================================
 
 const updateBadgeAndTitle = () => {
   if (unreadCount > 0) {
@@ -21,12 +57,20 @@ const updateBadgeAndTitle = () => {
   }
 };
 
+// Слушаем фокус окна, чтобы сбросить счетчик и убрать точку в Linux
 let focusListenerAttached = false;
 const attachFocusListener = () => {
   if (focusListenerAttached) return;
   window.addEventListener("focus", () => {
     unreadCount = 0;
     updateBadgeAndTitle();
+
+    // === МАГИЯ LINUX: Явно закрываем уведомление ===
+    if (activeNotification) {
+      activeNotification.close();
+      activeNotification = null;
+    }
+    // ==============================================
   });
   focusListenerAttached = true;
 };
@@ -51,7 +95,11 @@ const setupSocketListeners = (newSocket, set, get) => {
     }
     if (!document.hasFocus()) {
       unreadCount++;
-      updateBadgeAndTitle();
+      updateBadgeAndTitle(); // Меняем заголовок и бейдж (где возможно)
+
+      // === ОТПРАВЛЯЕМ СИСТЕМНОЕ УВЕДОМЛЕНИЕ ===
+      sendSystemNotification(msg);
+      // ==============================================
     }
   };
 
