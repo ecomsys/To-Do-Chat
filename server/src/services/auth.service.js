@@ -2,9 +2,17 @@ const jwt = require("jsonwebtoken");
 const { JWT_SECRET } = require("../config/constants");
 const roleService = require("./role.service"); // Подключаем сервис ролей
 
-exports.verifyCredentials = (role, password) => {
+// ДОБАВИЛИ async
+exports.verifyCredentials = async (role, password) => {
   const roleData = roleService.findRole(role);
-  if (!roleData || password !== roleData.password) return null;
+  if (!roleData) return null; // Если роли нет, сразу отказ
+
+  // ЗАМЕНИЛИ СРАВНЕНИЕ НА НАШ НОВЫЙ МЕТОД
+  // Он сам проверит пароль, и если это старый текстовый пароль - захэширует его и сохранит
+  const isMatch = await roleService.validateAndMigratePassword(role, password);
+  
+  if (!isMatch) return null;
+
   return roleData.name || role; // Возвращаем дефолтное имя, если своего нет
 };
 

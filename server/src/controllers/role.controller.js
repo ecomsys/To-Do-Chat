@@ -1,4 +1,7 @@
 const roleService = require("../services/role.service");
+const bcrypt = require("bcryptjs"); // <--- ПОДКЛЮЧИЛИ
+
+// Тут мы прячем хэши от админки и хэшируем новые пароли при сохранении.
 
 // Получить список ролей для формы логина (без паролей!)
 exports.getPublicRoles = (req, res) => {
@@ -10,22 +13,39 @@ exports.getPublicRoles = (req, res) => {
   res.json(publicRoles);
 };
 
+// Получить все роли для АДМИНКИ
 exports.getAdminRoles = (req, res) => {
   const roles = roleService.getRoles();
   const rolesArray = Object.keys(roles).map(key => ({
     role: key,
-    password: roles[key].password,
+    password: "********", // <--- ВАЖНО: Не светим реальные хэши, отправляем маску!
     name: roles[key].name
   }));
   res.json(rolesArray);
 };
 
-exports.upsertRole = (req, res) => {
+// Создать/Обновить роль
+exports.upsertRole = async (req, res) => {
   const { role, password, name } = req.body;
-  if (!role || !password) return res.status(400).json({ error: "Укажите роль и пароль" });
+  if (!role) return res.status(400).json({ error: "Укажите роль" });
   
   const roles = roleService.getRoles();
-  roles[role] = { password, name: name || "" };
+  const existingRole = roles[role];
+
+  let finalPassword;
+
+  // Если админ не менял пароль (пришел наша маска ********) И роль уже существует
+  if (password === "********" && existingRole) {
+    finalPassword = existingRole.password; // Оставляем старый пароль (хэш) как есть
+  } else if (!password) {
+    return res.status(400).json({ error: "Укажите пароль" });
+  } else {
+    // Админ ввел НОВЫЙ пароль -> ХЭШИРУЕМ ЕГО!
+    const salt = await bcrypt.genSalt(10);
+    finalPassword = await bcrypt.hash(password, salt);
+  }
+
+  roles[role] = { password: finalPassword, name: name || "" };
   roleService.saveRoles(roles);
   
   // ОТПРАВЛЯЕМ СОБЫТИЕ ВСЕМ КЛИЕНТАМ
@@ -34,6 +54,7 @@ exports.upsertRole = (req, res) => {
   
   res.json({ success: true, role: roles[role] });
 };
+
 
 exports.deleteRole = (req, res) => {
   const { roleName } = req.params;

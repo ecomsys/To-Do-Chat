@@ -1,23 +1,4 @@
-// WebRTC Конфигурация (STUN/TURN серверы)
-
-export const ICE_SERVERS = [
-  // Бесплатный STUN Google
-  // { urls: "stun:stun.l.google.com:19302" },
-
-    // ТВОЙ ЛИЧНЫЙ TURN СЕРВЕР
-  {
-    urls: "turn:31.129.111.75:3478", // <--- ВСТАВЬ IP СВОЕГО VPS
-    username: "todochat",               // Логин из конфига Coturn
-    credential: "A*f5k*w9XwHB",  // Пароль из конфига Coturn
-  },
-  
-  // Резервный через домен (если домен привязан к IP)
-  {
-    urls: "turn:todochat.ecomsys.ru:3478", 
-    username: "todochat",
-    credential: "A*f5k*w9XwHB",
-  }
-];
+// WebRTC конфигурация берет ключи с помощью hmac
 
 export const CALL_TIMEOUT_MS = 30000;  // сколько идет сигнал вызова при звонке в м/с
 

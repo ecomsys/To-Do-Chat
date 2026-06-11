@@ -9,6 +9,7 @@ export default function Sidebar({ users, typingUsers, handleLogout }) {
   const messages = useChatStore((state) => state.messages);
   const currentSocketId = useChatStore((state) => state.socket?.id);
   const makeCall = useChatStore((state) => state.makeCall);
+  const currentRole = useChatStore((state) => state.role);
 
   return (
     <div className="hidden sm:flex w-50 lg:w-64 flex-col bg-slate-800 border-r border-slate-700">
@@ -39,7 +40,8 @@ export default function Sidebar({ users, typingUsers, handleLogout }) {
                   : lastMsg.message;
             }
 
-            const canCall = user.id !== currentSocketId;
+            // ЗВОНИТЬ МОЖЕТ ТОЛЬКО ПРОГРАММИСТ, И ТОЛЬКО НЕ СЕБЕ
+            const canCall = currentRole === "Программист" && user.id !== currentSocketId;
 
             return (
               <div key={user.id} className="flex items-center gap-2.5 group">

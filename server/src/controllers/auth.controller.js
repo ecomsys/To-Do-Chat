@@ -1,13 +1,23 @@
-const { verifyCredentials, generateToken } = require("../services/auth.service");
+const {
+  verifyCredentials,
+  generateToken,
+} = require("../services/auth.service");
 const roleService = require("../services/role.service"); // Добавили
 
-exports.login = (req, res) => {
+// 1. ДОБАВИЛИ async
+exports.login = async (req, res) => {
   const { role, password, name } = req.body;
-  
-  if (!verifyCredentials(role, password)) {
-    return res.status(401).json({ error: `Неверный пароль для роли "${role}"` });
+
+  // 2. ДОБАВИЛИ await, чтобы дождаться результата проверки bcrypt!
+  const isVerified = await verifyCredentials(role, password);
+
+  if (!isVerified) {
+    return res
+      .status(401)
+      .json({ error: `Неверный пароль для роли "${role}"` });
   }
 
+  // Токен генерируем только если await пропустил нас дальше
   const token = generateToken({ role, name: name || role });
 
   // Устанавливаем httpOnly куку

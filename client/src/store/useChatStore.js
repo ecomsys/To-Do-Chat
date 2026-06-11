@@ -1,6 +1,5 @@
 import { create } from "zustand";
 import { getSocket, resetSocket } from "../socket";
-import { ICE_SERVERS } from "../constants";
 import { CALL_TIMEOUT_MS } from "../constants";
 
 // Глобальные переменные для WebRTC (не в стейте, чтобы не вызывать лишние рендеры)
@@ -8,9 +7,6 @@ let peerConnection = null;
 let localStream = null;
 let iceCandidatesQueue = [];
 let callTimeoutId = null;
-
-const configuration = { iceServers: ICE_SERVERS };
-
 
 const useChatStore = create((set, get) => ({
   callState: "idle", // 'idle' | 'offering' | 'ringing' | 'active'
@@ -22,6 +18,8 @@ const useChatStore = create((set, get) => ({
   callType: null, // 'audio' | 'video'
   callStartTime: null, // Timestamp начала разговора
   incomingCall: null,
+
+  iceServers: null,
 
   availableRoles: [], // Роли для формы логина
   adminRoles: [], // Роли для админки
@@ -71,7 +69,14 @@ const useChatStore = create((set, get) => ({
     }
 
     try {
-      peerConnection = new RTCPeerConnection(configuration);
+      const { iceServers } = get();
+      if (!iceServers) {
+        alert("Ошибка подключения к серверу обхода NAT");
+        get().endCall();
+        return;
+      }
+      peerConnection = new RTCPeerConnection({ iceServers });
+
       localStream
         .getTracks()
         .forEach((track) => peerConnection.addTrack(track, localStream));
@@ -126,7 +131,7 @@ const useChatStore = create((set, get) => ({
   },
 
   answerCall: async () => {
-    const { socket, incomingCall } = get();
+    const { socket, incomingCall, iceServers } = get();
     if (!incomingCall) return;
 
     // Определяем тип звонка из входящих данных (если сервер его передал)
@@ -154,8 +159,14 @@ const useChatStore = create((set, get) => ({
     try {
       clearTimeout(callTimeoutId); // ОТМЕНЯЕМ ТАЙМЕР
 
-      // 1. Создаем PeerConnection только при ответе!
-      peerConnection = new RTCPeerConnection(configuration);
+      // 1. Создаем PeerConnection только при ответе!      
+      if (!iceServers) {
+        alert("Ошибка подключения к серверу обхода NAT");
+        get().endCall();
+        return;
+      }
+      peerConnection = new RTCPeerConnection({ iceServers });
+
       localStream
         .getTracks()
         .forEach((track) => peerConnection.addTrack(track, localStream));
@@ -307,6 +318,20 @@ const useChatStore = create((set, get) => ({
       if (res.ok) {
         const data = await res.json();
         set({ role: data.role, name: data.name, step: "chat" });
+
+        // === ЗАГРУЗКА TURN КЛЮЧЕЙ ===
+        try {
+          const turnRes = await fetch("/api/turn-credentials", {
+            credentials: "include",
+          });
+          if (turnRes.ok) {
+            const turnData = await turnRes.json();
+            set({ iceServers: turnData.iceServers }); // Сохраняем в стор
+          }
+        } catch (e) {
+          console.error("Не удалось загрузить TURN ключи", e);
+        }
+        // ============================
       } else {
         set({ step: "login" });
       }

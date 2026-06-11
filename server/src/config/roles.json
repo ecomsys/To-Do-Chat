@@ -1,6 +1,10 @@
-{ 
+{
   "Программист": {
-    "password": "programmer_01",
+    "password": "$2b$10$3g9iMZ1rbSu51zADZAkJ2e6sfnpGkOeGRqsuW9SBeOeq8OnoqMXNO",
+    "name": ""
+  },
+  "Designer": {
+    "password": "$2b$10$qV9xZZumLz8RT4CAJfCwTOu3eKNnkiBnltxQH6LxPUy2JaOlvPUJ2",
     "name": ""
   }
 }

@@ -21,6 +21,7 @@ export default function MobileSidebar({
   const messages = useChatStore((state) => state.messages);
   const currentSocketId = useChatStore((state) => state.socket?.id);
   const makeCall = useChatStore((state) => state.makeCall);
+  const currentRole = useChatStore((state) => state.role);
 
   return (
     <Sheet open={mobileMenuOpen} onOpenChange={toggleMobileMenu}>
@@ -48,7 +49,9 @@ export default function MobileSidebar({
                   : lastMsg.message;
             }
 
-            const canCall = user.id !== currentSocketId;
+            // ЗВОНИТЬ МОЖЕТ ТОЛЬКО ПРОГРАММИСТ, И ТОЛЬКО НЕ СЕБЕ
+            const canCall =
+              currentRole === "Программист" && user.id !== currentSocketId;
 
             return (
               <div key={user.id} className="flex items-start gap-2.5">
