@@ -5,24 +5,23 @@ const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const path = require("path");
 const fs = require("fs");
+require("dotenv").config(); // <-- Не забудь, если еще не подключено
 
 const { socketAuth } = require("./src/middlewares/auth.middleware");
 const socketHandler = require("./src/socket/socketHandler");
 const authRoutes = require("./src/routes/auth.routes");
 const fileRoutes = require("./src/routes/file.routes");
 const roleRoutes = require("./src/routes/role.routes");
+const turnRoutes = require("./src/routes/turn.routes"); // <--- НАШ НОВЫЙ РОУТ
 
 const app = express();
-
 app.set('trust proxy', true);
 
-// 1. Создаем HTTP сервер и Socket.IO ПЕРВЫМ ДЕЛОМ
 const serverHttp = http.createServer(app);
 
-// Массив разрешенных адресов
 const allowedOrigins = [
-  "http://localhost:3000", // Для локалки
-  "https://todochat.ecomsys.ru" // Для прода
+  "http://localhost:3000",
+  "https://todochat.ecomsys.ru"
 ];
 
 const io = new Server(serverHttp, {
@@ -34,19 +33,17 @@ const io = new Server(serverHttp, {
 });
 app.set('io', io);
 
-
-// 2. Создаем общую мапу занятых ролей
 const roleOccupancy = new Map();
 
-// 3. Подключаем Middlewares (ОБЯЗАТЕЛЬНО ДО РОУТОВ!)
-app.use(cors({ origin: allowedOrigins, credentials: true })); // Добавил CORS для HTTP
-app.use(express.json()); // ВАЖНО: До роутов, чтобы req.body работал
+app.use(cors({ origin: allowedOrigins, credentials: true }));
+app.use(express.json());
 app.use(cookieParser());
 
-// 4. Подключаем Роуты (теперь io и roleOccupancy существуют)
+// 4. Подключаем Роуты
 app.use("/api/auth", authRoutes);
 app.use("/api/files", fileRoutes);
-app.use("/api/roles", roleRoutes(io, roleOccupancy)); // Убрал хак со stack.filter, всё работает и так!
+app.use("/api/roles", roleRoutes(io, roleOccupancy));
+app.use("/api/turn-credentials", turnRoutes); // для потоковой связи
 
 // 5. Статика
 const uploadDir = path.join(__dirname, "uploads");

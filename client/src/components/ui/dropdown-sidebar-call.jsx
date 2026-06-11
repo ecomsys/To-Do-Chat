@@ -1,4 +1,4 @@
-import { Phone, MoreVertical, Video } from "lucide-react";
+import { Phone, Video } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 import {
@@ -22,12 +22,12 @@ export function UserCallDropdown({
       <DropdownMenuTrigger asChild>
         <button
           className={cn(
-            visible ? "" : "opacity-0 group-hover:opacity-100 hover:text-white",
+            visible ? "" : "opacity-0 group-hover:opacity-100 ",
             "p-1 text-slate-500 transition-opacity focus:outline-none shrink-0",
           )}
           title="Позвонить"
         >
-          <MoreVertical className="w-4 h-4" />
+          <Phone className="w-4 h-4 text-white/60 hover:text-white" />
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="min-w-max">
