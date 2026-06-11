@@ -5,7 +5,11 @@ const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const path = require("path");
 const fs = require("fs");
-require("dotenv").config(); // <-- Не забудь, если еще не подключено
+
+// Если мы на локалке (NODE_ENV не равен 'production'), то подтягиваем переменные из файла .env
+if (process.env.NODE_ENV !== "production") {
+  require("dotenv").config();
+}
 
 const { socketAuth } = require("./src/middlewares/auth.middleware");
 const socketHandler = require("./src/socket/socketHandler");

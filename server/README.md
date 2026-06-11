@@ -32,6 +32,17 @@ server/
 
 # Как создать свой TURN сервер на VPS для потоковой связи ?
 
+## Шаг 0: Подготовительный ! 
+
+1.нужно иметь vps
+2.нужно иметь призянный домен к vps
+3.нужно сгенерировать секрет для turn сервера
+
+генерация секрета
+```bash
+openssl rand -hex 16
+```
+
 ## Шаг 1: Установка Coturn на VPS
 
 ```bash
@@ -139,4 +150,10 @@ sudo ufw allow 49152:65535/tcp
 sudo tail -f /var/log/turnserver.log
 ```
 
+## Запуск на продакшене
 
+```bash
+pm2 delete todo-chat # Удаляем старый процесс
+pm2 start ecosystem.config.js --env production # Запускаем с прод-окружением
+pm2 save
+```
