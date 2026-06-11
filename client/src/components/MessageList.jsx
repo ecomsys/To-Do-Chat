@@ -80,11 +80,11 @@ function MessageList({ messages }) {
   }, [messages, currentSocketId]);
 
   return (
-    <div className="flex-1 relative min-h-0 bg-gradient-to-br from-slate-800 to-slate-900">
+    <div className="flex flex-col flex-1 relative min-h-0 bg-gradient-to-br from-slate-800 to-slate-900">
       <div
         ref={containerRef}
         onScroll={handleScroll}
-        className="h-full overflow-y-auto custom-scroll p-4 space-y-4"
+        className="flex-1 min-h-0 overflow-y-auto custom-scroll p-4 space-y-4"
       >
         {/* AnimatePresence включает анимацию удаления (exit) */}
         <AnimatePresence initial={false}>
