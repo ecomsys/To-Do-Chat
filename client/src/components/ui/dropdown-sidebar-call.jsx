@@ -1,4 +1,4 @@
-import { Phone, MoreVertical, Video } from "lucide-react";
+import { Phone, Video } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 import {
