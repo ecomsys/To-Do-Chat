@@ -1,5 +1,5 @@
 import { Navigate } from "react-router-dom";
-import useChatStore from "../store/useChatStore";
+import useChatStore from "../stores/useChatStore";
 import { PROGRAMMER_ROLE } from "../constants";
 import LoadingScreen from "./LoadingScreen";
 

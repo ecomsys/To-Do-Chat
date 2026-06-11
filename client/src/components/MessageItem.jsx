@@ -6,7 +6,7 @@ import Lightbox from "yet-another-react-lightbox";
 import "yet-another-react-lightbox/styles.css";
 
 // Подключаем стор
-import useChatStore from "../store/useChatStore";
+import useChatStore from "../stores/useChatStore";
 
 // Shadcn UI
 import {
@@ -26,6 +26,7 @@ import {
   Music,
   MoreVertical,
   Reply,
+  Pencil,
 } from "lucide-react";
 
 // Компонент цитаты
@@ -50,6 +51,9 @@ function MessageItem({ msg }) {
   const deleteMessage = useChatStore((state) => state.deleteMessage);
   const setReplyingTo = useChatStore((state) => state.setReplyingTo);
 
+  const setEditingMessage = useChatStore((state) => state.setEditingMessage);
+  const setInputMessage = useChatStore((state) => state.setInputMessage);
+
   // Проверка прав: сравниваем по РОЛИ, а не по socket.id!
   // Роль не меняется при перезагрузке страницы, в отличие от socket.id
   const isAuthor = msg.role === currentRole;
@@ -57,7 +61,10 @@ function MessageItem({ msg }) {
   const canDelete = isAuthor || isProgrammer;
 
   // Можно отвечать на любое чужое сообщение (убрал !msg.replyTo, чтобы можно было цитировать цитаты)
-    const canReply = !isAuthor && !msg.replyTo;
+  const canReply = !isAuthor && !msg.replyTo;
+
+  // Права: можно редактировать только свои текстовые сообщения
+  const canEdit = isAuthor && msg.type === "text";
 
   // Ключевая переменная: сообщение от программиста?
   const isProgrammerMsg = msg.role === "Программист";
@@ -325,7 +332,7 @@ function MessageItem({ msg }) {
           <p className="text-slate-200 break-words">{msg.message}</p>
 
           {/* Блок действий (появляется при наведении) */}
-          {(canReply || canDelete) && (
+          {(canReply || canDelete || canEdit) && (
             <div className="flex items-center gap-1 mt-2 justify-end">
               {/* Кнопка "Ответить" (видна всем на чужих сообщениях) */}
               {canReply && (
@@ -350,6 +357,15 @@ function MessageItem({ msg }) {
                     align={isProgrammerMsg ? "end" : "start"}
                     className="min-w-max"
                   >
+                    <DropdownMenuItem
+                      variant="primary"
+                      onClick={() => {
+                        setInputMessage(msg.message); // Переносим текст в инпут
+                        setEditingMessage(msg); // Включаем режим редактирования
+                      }}
+                    >
+                      <Pencil className="w-4 h-4 mr-2" /> Редактировать
+                    </DropdownMenuItem>
                     <DropdownMenuItem
                       variant="destructive"
                       onClick={() => deleteMessage(msg.id)}

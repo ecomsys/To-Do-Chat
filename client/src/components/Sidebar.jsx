@@ -2,7 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { getRoleColor } from "../constants";
-import useChatStore from "../store/useChatStore";
+import useChatStore from "../stores/useChatStore";
 import { UserCallDropdown } from "./ui/dropdown-sidebar-call";
 
 export default function Sidebar({ users, typingUsers, handleLogout }) {
