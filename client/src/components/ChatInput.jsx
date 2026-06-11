@@ -90,16 +90,18 @@ export default function ChatInput({
       />
       <div className="flex gap-2 items-center">
         {/* Кнопка прикрепления файла */}
-        <Button
-          type="button"
-          variant="outline"
-          size="icon"
-          onClick={() => document.getElementById("fileInput").click()}
-          disabled={uploadingFile}
-          className="shrink-0 h-10 w-10 rounded-full " // Чтобы кнопка не сжималась
-        >
-          <Paperclip className="h-4 w-4" />
-        </Button>
+        {!editingMessage && (
+          <Button
+            type="button"
+            variant="outline"
+            size="icon"
+            onClick={() => document.getElementById("fileInput").click()}
+            disabled={uploadingFile}
+            className="shrink-0 h-10 w-10 rounded-full " // Чтобы кнопка не сжималась
+          >
+            <Paperclip className="h-4 w-4" />
+          </Button>
+        )}
         <input
           id="fileInput"
           type="file"
@@ -122,7 +124,11 @@ export default function ChatInput({
               handleSubmit(e); // Отправляем форму
             }
           }}
-          placeholder={editingMessage ? "Отредактируйте сообщение..." : "Введите сообщение..."}
+          placeholder={
+            editingMessage
+              ? "Отредактируйте сообщение..."
+              : "Введите сообщение..."
+          }
           className="h-10 rounded-full flex-1 bg-slate-700 border-slate-600 text-white"
           disabled={uploadingFile}
         />

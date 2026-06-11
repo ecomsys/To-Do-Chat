@@ -12,7 +12,6 @@ export default function ChatPage() {
   const role = useChatStore((state) => state.role);
   const isProgrammer = role === PROGRAMMER_ROLE;
   
-  // Достаем всё остальное, что раньше передавалось из App
   const users = useChatStore((state) => state.users);
   const typingUsers = useChatStore((state) => state.typingUsers);
   const messages = useChatStore((state) => state.messages);
@@ -39,6 +38,7 @@ export default function ChatPage() {
 
       <VideoCallModal/>
       
+      {/* ГЛАВНЫЙ КОНТЕЙНЕР ЧАТА */}
       <div className="flex-1 flex flex-col min-w-0">
         <ChatHeader
           role={role}
@@ -48,7 +48,17 @@ export default function ChatPage() {
           toggleMobileMenu={toggleMobileMenu}
           handleLogout={handleLogout}
         />
-        <MessageList messages={messages} />
+        
+        {/* === МАГИЯ FLEXBOX === 
+          min-h-0: позволяет этому блоку сжиматься меньше размера контента, 
+          когда клавиатура отжимает экран вверх.
+          flex-1: забирает всё свободное место.
+          overflow-y-auto: делает скролл именно тут, а не на всей странице.
+        */}
+        <div className="flex-1 overflow-y-auto min-h-0 custom-scroll">
+          <MessageList messages={messages} />
+        </div>
+
         <ChatInput
           selectedFile={selectedFile}
           filePreview={filePreview}
@@ -62,6 +72,7 @@ export default function ChatPage() {
           uploadingFile={uploadingFile}
         />
       </div>
+
       <MobileSidebar
         mobileMenuOpen={mobileMenuOpen}
         toggleMobileMenu={toggleMobileMenu}
