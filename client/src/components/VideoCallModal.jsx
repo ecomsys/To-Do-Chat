@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import useChatStore from "../store/useChatStore";
+import useChatStore from "../stores/useChatStore";
 import {
   PhoneOff,
   MicOff,
@@ -124,6 +124,15 @@ export default function VideoCallModal() {
         setIsMinimized(false);
       });
   }, [callState]);
+
+    // === ЗАКРЫВАЕМ МОБИЛЬНЫЙ САЙДБАР ПРИ ЗВОНКЕ ===
+  useEffect(() => {
+    // Если звонок активен (любое состояние, кроме idle), закрываем сайдбар
+    if (callState !== "idle") {
+      useChatStore.setState({ mobileMenuOpen: false });
+    }
+  }, [callState]);
+  // ===============================================
 
   if (callState === "idle") return null;
 

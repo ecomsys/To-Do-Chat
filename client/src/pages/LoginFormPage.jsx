@@ -17,7 +17,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Eye, EyeOff } from "lucide-react";
-import useChatStore from "../store/useChatStore"; // Подключаем стор
+import useChatStore from "../stores/useChatStore"; // Подключаем стор
 
 export default function LoginForm() { // УБРАЛИ ВСЕ ПРОПСЫ!
   // Забираем всё нужное напрямую из стора

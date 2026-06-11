@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { getSocket, resetSocket } from "../socket";
 import { CALL_TIMEOUT_MS } from "../constants";
+import { toast } from "sonner";
 
 // ==========================================
 // ВСПОМОГАТЕЛЬНАЯ ЛОГИКА (Вне стора)
@@ -46,7 +47,8 @@ const createNotification = (msg) => {
 // ========================================================
 const updateBadgeAndTitle = () => {
   if (unreadCount > 0) {
-    if ("setAppBadge" in navigator) navigator.setAppBadge(unreadCount).catch(() => {});
+    if ("setAppBadge" in navigator)
+      navigator.setAppBadge(unreadCount).catch(() => {});
     // Стандарт индустрии: (1) Название
     document.title = `(${unreadCount}) To-Do Chat`;
   } else {
@@ -187,6 +189,13 @@ const setupSocketListeners = (newSocket, set, get) => {
 
   const onCallEnded = () => get().endCall();
 
+  const onMessageEdited = (updatedMsg) =>
+    set((state) => ({
+      messages: state.messages.map((m) =>
+        m.id === updatedMsg.id ? updatedMsg : m,
+      ),
+    }));
+
   // Подключаем все события
   newSocket.on("incoming-call", onIncomingCall);
   newSocket.on("call-answered", onCallAnswered);
@@ -194,6 +203,7 @@ const setupSocketListeners = (newSocket, set, get) => {
   newSocket.on("call-ended", onCallEnded);
   newSocket.on("rolesUpdated", onRolesUpdated);
   newSocket.on("roleDeleted", onRoleDeleted);
+  newSocket.on("messageEdited", onMessageEdited);
   newSocket.on("messageHistory", onMessageHistory);
   newSocket.on("usersList", onUsersList);
   newSocket.on("message", onMessage);
@@ -209,6 +219,7 @@ const setupSocketListeners = (newSocket, set, get) => {
     newSocket.off("call-ended", onCallEnded);
     newSocket.off("rolesUpdated", onRolesUpdated);
     newSocket.off("roleDeleted", onRoleDeleted);
+    newSocket.off("messageEdited", onMessageEdited);
     newSocket.off("messageHistory", onMessageHistory);
     newSocket.off("usersList", onUsersList);
     newSocket.off("message", onMessage);
@@ -323,11 +334,29 @@ const useChatStore = create((set, get) => ({
   inputMessage: "",
   replyingTo: null,
   typingUsers: {},
+  editingMessage: null,
+
+  setEditingMessage: (msg) => set({ editingMessage: msg, replyingTo: null }),
+  clearEditingMessage: () => set({ editingMessage: null }),
 
   /** Отправка текстового сообщения */
   sendMessage: (e) => {
     e.preventDefault();
-    const { inputMessage, socket, typingTimeout, replyingTo } = get();
+    const { inputMessage, socket, typingTimeout, replyingTo, editingMessage } =
+      get();
+
+    // Если мы в режиме редактирования ===
+    if (editingMessage) {
+      socket.emit("editMessage", {
+        messageId: editingMessage.id,
+        newText: inputMessage.trim(),
+      });
+      set({ inputMessage: "", editingMessage: null });
+      if (typingTimeout) clearTimeout(typingTimeout);
+      socket.emit("typing", { isTyping: false });
+      return;
+    }
+
     if (inputMessage.trim() && socket) {
       const replyData = replyingTo
         ? {
@@ -349,7 +378,6 @@ const useChatStore = create((set, get) => ({
 
   /** Очистка всей истории чата (только для Программиста) */
   clearChat: () => {
-    if (!window.confirm("Очистить весь чат?")) return;
     const { socket } = get();
     if (socket) socket.emit("clearChat");
   },
@@ -432,7 +460,7 @@ const useChatStore = create((set, get) => ({
       set({ selectedFile: null, filePreview: "", replyingTo: null });
     } catch (err) {
       console.log(err);
-      alert("Не удалось загрузить файл");
+      toast.error("Не удалось загрузить файл");
     } finally {
       set({ uploadingFile: false });
     }
@@ -440,7 +468,6 @@ const useChatStore = create((set, get) => ({
 
   /** Очистка всех загруженных файлов на сервере (только для Программиста) */
   clearUploads: async () => {
-    if (!window.confirm("Удалить ВСЕ загруженные файлы?")) return;
     try {
       const res = await fetch("/api/files/clear-uploads", {
         method: "POST",
@@ -448,9 +475,9 @@ const useChatStore = create((set, get) => ({
       });
       if (!res.ok) throw new Error("Ошибка очистки");
       const data = await res.json();
-      alert(`Очищено файлов: ${data.deleted}`);
+      toast.success(`Очищено файлов: ${data.deleted}`);
     } catch (err) {
-      alert("Ошибка: " + err.message);
+      toast.error("Ошибка: " + err.message);
     }
   },
 
@@ -525,7 +552,7 @@ const useChatStore = create((set, get) => ({
         });
       } catch (audioErr) {
         console.error("Ошибка доступа к микрофону:", audioErr);
-        alert("Не удалось получить доступ к камере или микрофону");
+        toast.error("Не удалось получить доступ к камере или микрофону");
         get().endCall();
         return;
       }
@@ -534,7 +561,7 @@ const useChatStore = create((set, get) => ({
     try {
       const { iceServers } = get();
       if (!iceServers) {
-        alert("Ошибка подключения к серверу обхода NAT");
+        toast.error("Ошибка подключения к серверу обхода NAT");
         get().endCall();
         return;
       }
@@ -615,7 +642,7 @@ const useChatStore = create((set, get) => ({
     try {
       clearTimeout(callTimeoutId);
       if (!iceServers) {
-        alert("Ошибка подключения к серверу обхода NAT");
+        toast.error("Ошибка подключения к серверу обхода NAT");
         get().endCall();
         return;
       }

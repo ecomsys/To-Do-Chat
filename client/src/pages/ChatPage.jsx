@@ -3,7 +3,7 @@ import MobileSidebar from "@/components/MobileSidebar";
 import ChatHeader from "@/components/ChatHeader";
 import MessageList from "@/components/MessageList";
 import ChatInput from "@/components/ChatInput";
-import useChatStore from "../store/useChatStore";
+import useChatStore from "../stores/useChatStore";
 import { PROGRAMMER_ROLE } from "../constants";
 
 import VideoCallModal from "@/components/VideoCallModal";

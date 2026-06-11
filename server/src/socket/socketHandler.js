@@ -46,6 +46,24 @@ module.exports = (io, roleOccupancy) => {
       io.emit("messageDeleted", { messageId });
     });
 
+    socket.on("editMessage", ({ messageId, newText }) => {
+      const msgIndex = messageHistory.findIndex((m) => m.id === messageId);
+      if (msgIndex === -1) return;
+
+      // Проверяем права: только автор может редактировать, и только текст
+      const isAuthor = messageHistory[msgIndex].role === role;
+      const isText = messageHistory[msgIndex].type === "text";
+      
+      if (!isAuthor || !isText) return;
+
+      // Обновляем текст и ставим флажок
+      messageHistory[msgIndex].message = newText;
+      messageHistory[msgIndex].isEdited = true;
+      
+      // Отправляем обновленное сообщение всем
+      io.emit("messageEdited", messageHistory[msgIndex]);
+    });
+
     // === ВИДЕО СВЯЗЬ (Сигнализация) ===
 
     socket.on("call-user", ({ targetSocketId, offer, callType }) => {

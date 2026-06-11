@@ -1,12 +1,21 @@
 import { useEffect } from "react";
-import { Routes, Route, Navigate, useLocation, useNavigate } from "react-router-dom";
-import useChatStore from "@/store/useChatStore";
+import {
+  Routes,
+  Route,
+  Navigate,
+  useLocation,
+  useNavigate,
+} from "react-router-dom";
+import useChatStore from "@/stores/useChatStore";
 
 import LoadingScreen from "@/components/LoadingScreen";
 import LoginForm from "@/pages/LoginFormPage";
 import ChatPage from "@/pages/ChatPage";
 import AdminPanel from "@/pages/AdminPanelPage";
 import { AuthGuard, AdminGuard } from "@/components/ProtectedRoute";
+
+import { Toaster } from "sonner";
+import Modal from "@/components/Modal";
 
 function App() {
   const step = useChatStore((state) => state.step);
@@ -46,39 +55,44 @@ function App() {
           backgroundImage: `repeating-linear-gradient(45deg, #cbd5e1 0rem, #cbd5e1 0.0625rem, transparent 0.0625rem, transparent 1.5rem)`,
         }}
       />
-      
+
       <div className="max-w-6xl px-3 sm:px-8 mx-auto flex h-full z-10 relative w-full">
         <Routes>
           {/* Роут Логина */}
-          <Route 
-            path="/login" 
-            element={step === "chat" ? <Navigate to="/" replace /> : <LoginForm />} 
+          <Route
+            path="/login"
+            element={
+              step === "chat" ? <Navigate to="/" replace /> : <LoginForm />
+            }
           />
 
           {/* Роут Админки (Защищен ролью Программиста) */}
-          <Route 
-            path="/admin" 
+          <Route
+            path="/admin"
             element={
               <AdminGuard>
                 <AdminPanel />
               </AdminGuard>
-            } 
+            }
           />
 
           {/* Главный роут Чата (Защищен авторизацией) */}
-          <Route 
-            path="/" 
+          <Route
+            path="/"
             element={
               <AuthGuard>
                 <ChatPage />
               </AuthGuard>
-            } 
+            }
           />
 
           {/* Если URL кривой — кидаем на главную */}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </div>
+
+      <Toaster richColors position="bottom-left" theme="dark" />
+      <Modal />
     </div>
   );
 }

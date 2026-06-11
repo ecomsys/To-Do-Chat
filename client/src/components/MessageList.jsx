@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import MessageItem from "./MessageItem";
 import { ArrowDown } from "lucide-react";
-import useChatStore from "../store/useChatStore";
+import useChatStore from "../stores/useChatStore";
 import { motion, AnimatePresence } from "framer-motion"; // Импортируем framer-motion
 
 function MessageList({ messages }) {

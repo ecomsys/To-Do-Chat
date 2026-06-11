@@ -1,10 +1,10 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import FilePreview from "./FilePreview";
-import useChatStore from "@/store/useChatStore";
+import useChatStore from "@/stores/useChatStore";
 
 // Импортируем иконки из Lucide
-import { Paperclip, Send, Loader2, X } from "lucide-react";
+import { Paperclip, Send, Loader2, X, Pencil } from "lucide-react";
 
 export default function ChatInput({
   selectedFile,
@@ -27,11 +27,38 @@ export default function ChatInput({
   const replyingTo = useChatStore((state) => state.replyingTo);
   const clearReplyingTo = useChatStore((state) => state.clearReplyingTo);
 
+  const editingMessage = useChatStore((state) => state.editingMessage);
+  const clearEditingMessage = useChatStore(
+    (state) => state.clearEditingMessage,
+  );
+
   return (
     <form
       onSubmit={handleSubmit}
       className="p-3 sm:p-4 bg-slate-800 border-t border-slate-700 relative z-10 shrink-0 pb-[max(0.75rem,env(safe-area-inset-bottom))]"
     >
+      {/* Плашка "Редактирование" */}
+      {editingMessage && (
+        <div className="flex items-center justify-between bg-blue-900/50 border border-blue-500 px-3 py-2 mb-3 rounded-lg">
+          <div className="flex-1 min-w-0 border-l-2 border-blue-500 pl-2">
+            <p className="text-xs font-semibold text-blue-400 flex items-center gap-1">
+              <Pencil className="w-3 h-3" /> Редактирование
+            </p>
+            <p className="text-xs text-slate-400 truncate">
+              {editingMessage.message}
+            </p>
+          </div>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={clearEditingMessage}
+            className="shrink-0 ml-2 h-6 w-6 text-slate-400 hover:text-white hover:bg-transparent"
+          >
+            <X className="w-4 h-4" />
+          </Button>
+        </div>
+      )}
+
       {/* Плашка "Ответ для..." */}
       {replyingTo && (
         <div className="flex items-center justify-between bg-slate-700/50 border border-slate-600 px-3 py-2 mb-3 rounded-lg">
@@ -78,7 +105,7 @@ export default function ChatInput({
           type="file"
           className="hidden"
           onChange={handleFileChange}
-          disabled={uploadingFile}
+          disabled={uploadingFile || !!editingMessage}
         />
 
         {/* Поле ввода */}
@@ -88,14 +115,14 @@ export default function ChatInput({
             setInputMessage(e.target.value);
             handleTyping();
           }}
-            onKeyDown={(e) => {
+          onKeyDown={(e) => {
             // Если нажат Enter и НЕ зажат Shift (Shift+Enter для переноса строки, если будешь делать textarea)
             if (e.key === "Enter" && !e.shiftKey) {
               e.preventDefault(); // Предотвращаем стандартный перевод строки или пик звука
-              handleSubmit(e);    // Отправляем форму
+              handleSubmit(e); // Отправляем форму
             }
           }}
-          placeholder="Введите сообщение..."
+          placeholder={editingMessage ? "Отредактируйте сообщение..." : "Введите сообщение..."}
           className="h-10 rounded-full flex-1 bg-slate-700 border-slate-600 text-white"
           disabled={uploadingFile}
         />
@@ -114,7 +141,9 @@ export default function ChatInput({
           ) : (
             <>
               <Send className="h-4 w-4" /> {/* Иконка отправки */}
-              <span className="hidden sm:inline">Отправить</span>
+              <span className="hidden sm:inline">
+                {editingMessage ? "Сохранить" : "Отправить"}
+              </span>
             </>
           )}
         </Button>
