@@ -21,6 +21,7 @@ export default defineConfig({
         "android-chrome-512x512.png",
         "favicon-16x16.png",
         "favicon-32x32.png",
+        "preview.jpeg",
       ],
       manifest: {
         name: "To-Do Chat",
@@ -31,6 +32,14 @@ export default defineConfig({
         display: "standalone",
         scope: "/",
         start_url: "/",
+        screenshots: [
+          {
+            src: "/preview.jpeg",
+            sizes: "1200x630",
+            type: "image/jpeg",
+            form_factor: "wide",
+          },
+        ],
         icons: [
           {
             src: "/android-chrome-192x192.png",
@@ -66,14 +75,6 @@ export default defineConfig({
       },
       workbox: {
         globPatterns: ["**/*.{js,css,html,ico,png,svg,woff2}"],
-        
-        // Продакшен
-        // runtimeCaching: [
-        //   {
-        //     urlPattern: /^https:\/\/todo\.ecomsys\.ru\/socket\.io\/.*/i,
-        //     handler: "NetworkOnly",
-        //   },
-        // ],
 
         // деврежим
         runtimeCaching: [
@@ -89,7 +90,7 @@ export default defineConfig({
             urlPattern: /\/download\/.*/i, // ← ДОБАВИТЬ ЭТО!
             handler: "NetworkOnly",
           },
-        ],       
+        ],
       },
       devOptions: {
         enabled: true,
