@@ -47,7 +47,7 @@ export default function ChatPage() {
       />
 
       {/* ГЛАВНЫЙ КОНТЕЙНЕР ЧАТА */}
-      <div className="flex flex-col min-h-screen w-full">
+      <div className="flex flex-col h-screen w-full">
         <ChatHeader
           role={role}
           isProgrammer={isProgrammer}
