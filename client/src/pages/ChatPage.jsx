@@ -8,6 +8,7 @@ import { PROGRAMMER_ROLE } from "../constants";
 
 import VideoCallModal from "@/components/VideoCallModal";
 
+import { cn } from "@/lib/utils";
 import { useViewportHeight } from "../hooks/useViewportHeight";
 
 export default function ChatPage() {
@@ -35,6 +36,7 @@ export default function ChatPage() {
   const toggleMobileMenu = useChatStore((state) => state.toggleMobileMenu);
 
   const viewportHeight = useViewportHeight();
+  const isFullscreen = !!document.fullscreenElement;
 
   return (
     <div className="flex w-full border-r border-l border-slate-700 z-10 relative overflow-hidden"
@@ -73,7 +75,9 @@ export default function ChatPage() {
             sendMessage={sendMessage}
             sendFile={sendFile}
             uploadingFile={uploadingFile}
-            className="pt-3 pb-5 px-3 sm:px-4 sm:py-4 sm:pb-6"
+            className={cn("pt-3 pb-5 px-3 sm:px-4 sm:py-4 sm:pb-6",
+              isFullscreen ? "pb-[2.75rem]" : "",
+            )}
           />
         </div>
       </div>

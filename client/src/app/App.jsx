@@ -14,11 +14,14 @@ import ChatPage from "@/pages/ChatPage";
 import AdminPanel from "@/pages/AdminPanelPage";
 import { AuthGuard, AdminGuard } from "@/components/ProtectedRoute";
 
-
 import { Toaster } from "sonner";
 import Modal from "@/components/Modal";
 
+import { useViewportHeight } from "../hooks/useViewportHeight";
+
 function App() {
+  const viewportHeight = useViewportHeight();
+
   const step = useChatStore((state) => state.step);
   const initApp = useChatStore((state) => state.initApp);
   const connectSocket = useChatStore((state) => state.connectSocket);
@@ -29,7 +32,6 @@ function App() {
   useEffect(() => {
     initApp();
   }, [initApp]);
-
 
   // Подключение сокетов, когда шаг меняется на 'chat'
   useEffect(() => {
@@ -49,7 +51,10 @@ function App() {
   if (step === "loading") return <LoadingScreen />;
 
   return (
-    <div className="h-[100dvh] bg-gradient-to-br from-slate-800 to-slate-900 relative overflow-hidden">
+    <div
+      className="bg-gradient-to-br from-slate-800 to-slate-900 relative overflow-hidden"
+      style={{ height: `${viewportHeight}px` }}
+    >
       {/* Фоновый узор */}
       <div
         className="absolute inset-0 pointer-events-none opacity-10 z-0"
