@@ -19,6 +19,7 @@ export default function ChatInput({
   sendFile,
   uploadingFile,
   className,
+  style,
 }) {
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -41,6 +42,7 @@ export default function ChatInput({
         "bg-slate-800 border-t border-slate-700 relative z-10 shrink-0",
         className,
       )}
+      style={style}
     >
       {/* Плашка "Редактирование" */}
       {editingMessage && (

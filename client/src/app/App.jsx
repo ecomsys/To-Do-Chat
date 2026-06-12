@@ -13,6 +13,7 @@ import LoginForm from "@/pages/LoginFormPage";
 import ChatPage from "@/pages/ChatPage";
 import AdminPanel from "@/pages/AdminPanelPage";
 import { AuthGuard, AdminGuard } from "@/components/ProtectedRoute";
+import { useDynamicViewport } from 'use-dynamic-viewport';
 
 import { Toaster } from "sonner";
 import Modal from "@/components/Modal";
@@ -26,8 +27,10 @@ function App() {
 
   // Инициализация приложения
   useEffect(() => {
-    initApp();
+    initApp();    
   }, [initApp]);
+
+  useDynamicViewport();
 
   // Подключение сокетов, когда шаг меняется на 'chat'
   useEffect(() => {

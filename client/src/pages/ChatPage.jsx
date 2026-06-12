@@ -42,7 +42,7 @@ export default function ChatPage() {
       />
 
       {/* ГЛАВНЫЙ КОНТЕЙНЕР ЧАТА */}
-      <div className="flex flex-col h-[100dvh] w-full">
+      <div className="flex flex-col h-[calc(var(--dvh,100dvh))] w-full">
         <ChatHeader
           role={role}
           isProgrammer={isProgrammer}
@@ -70,6 +70,9 @@ export default function ChatPage() {
           sendFile={sendFile}
           uploadingFile={uploadingFile}
           className="mt-auto pt-3 pb-7 px-3 sm:px-4 sm:pt-4"
+          style={{
+            marginBottom: "var(--keyboard-height, 0px)",
+          }}
         />
       </div>
 
