@@ -7,14 +7,8 @@ import useChatStore from "../stores/useChatStore";
 import { PROGRAMMER_ROLE } from "../constants";
 
 import VideoCallModal from "@/components/VideoCallModal";
-import { useKeyboard } from "../hooks/useKeyboard";
-
-import { cn } from "@/lib/utils";
 
 export default function ChatPage() {
-  const {  isKeyboardOpen } = useKeyboard();
-  const isFullScreen = document.fullscreenElement;
-
   const role = useChatStore((state) => state.role);
   const isProgrammer = role === PROGRAMMER_ROLE;
 
@@ -38,19 +32,17 @@ export default function ChatPage() {
   const handleLogout = useChatStore((state) => state.handleLogout);
   const toggleMobileMenu = useChatStore((state) => state.toggleMobileMenu);
 
-  const needMarginBottom = isKeyboardOpen && isFullScreen;
-
   return (
-    <div className="flex h-[100dvh] border-r border-l border-slate-700 z-10 relative">
+    <div className="flex h-full w-full border-r border-l border-slate-700 z-10 relative overflow-hidden">
       <Sidebar
         users={users}
         typingUsers={typingUsers}
         handleLogout={handleLogout}
-        className="hidden sm:flex flex-col w-50 lg:w-64"
+        className="hidden sm:flex flex-col w-50 lg:w-64 shrink-0"
       />
 
       {/* ГЛАВНЫЙ КОНТЕЙНЕР ЧАТА */}
-      <div className="flex flex-col h-[inherit] w-full">
+      <div className="flex flex-col flex-1 min-w-0 h-full">
         <ChatHeader
           role={role}
           isProgrammer={isProgrammer}
@@ -58,29 +50,26 @@ export default function ChatPage() {
           clearUploads={clearUploads}
           toggleMobileMenu={toggleMobileMenu}
           handleLogout={handleLogout}
-          className="p-3 sm:p-4"
+          className="shrink-0 p-3 sm:p-4"
         />
 
-        <MessageList
-          messages={messages}  
-          className="flex-1 min-h-0"       
-        />
+        <MessageList messages={messages} className="flex-1 min-h-0" />
 
-        <ChatInput
-          selectedFile={selectedFile}
-          filePreview={filePreview}
-          inputMessage={inputMessage}
-          setInputMessage={setInputMessage}
-          handleFileChange={handleFileChange}
-          cancelFile={cancelFile}
-          handleTyping={handleTyping}
-          sendMessage={sendMessage}
-          sendFile={sendFile}
-          uploadingFile={uploadingFile}
-          className={cn("mt-auto pt-3 pb-7 px-3 sm:px-4 sm:pt-4",
-            needMarginBottom ? "mb-[2.75rem]" : "",
-          )}         
-        />
+        <div className="shrink-0 pb-[env(safe-area-inset-bottom,0.75rem)]">
+          <ChatInput
+            selectedFile={selectedFile}
+            filePreview={filePreview}
+            inputMessage={inputMessage}
+            setInputMessage={setInputMessage}
+            handleFileChange={handleFileChange}
+            cancelFile={cancelFile}
+            handleTyping={handleTyping}
+            sendMessage={sendMessage}
+            sendFile={sendFile}
+            uploadingFile={uploadingFile}
+            className="pt-3 pb-5 px-3 sm:px-4 sm:py-4 sm:pb-6"
+          />
+        </div>
       </div>
 
       <MobileSidebar

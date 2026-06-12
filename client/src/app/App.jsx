@@ -49,7 +49,7 @@ function App() {
   if (step === "loading") return <LoadingScreen />;
 
   return (
-    <div className="bg-gradient-to-br from-slate-800 to-slate-900 relative">
+    <div className="h-[100dvh] bg-gradient-to-br from-slate-800 to-slate-900 relative overflow-hidden">
       {/* Фоновый узор */}
       <div
         className="absolute inset-0 pointer-events-none opacity-10 z-0"
@@ -58,7 +58,7 @@ function App() {
         }}
       />
 
-      <div className="max-w-6xl px-3 sm:px-8 mx-auto z-10 relative">
+      <div className="h-full max-w-6xl px-3 sm:px-8 mx-auto z-10 relative flex">
         <Routes>
           {/* Роут Логина */}
           <Route
