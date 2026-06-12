@@ -63,7 +63,7 @@ export default function ChatPage() {
 
         <MessageList
           messages={messages}
-          className="flex-1 flex flex-col min-h-0 overflow-y-auto custom-scroll p-4 space-y-4"
+          className="h-full overflow-y-auto custom-scroll p-4 space-y-4"
         />
 
         <ChatInput
@@ -79,7 +79,7 @@ export default function ChatPage() {
           uploadingFile={uploadingFile}
           className={cn("mt-auto pt-3 pb-7 px-3 sm:px-4 sm:pt-4")}
           style={{
-            marginBottom: needMarginBottom ? "2rem" : "",
+            marginBottom: needMarginBottom ? "2.75rem" : "",
           }}
         />
       </div>

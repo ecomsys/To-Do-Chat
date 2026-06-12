@@ -66,7 +66,7 @@ export default function ChatHeader({
   const handleFuncLogout = () => modalServices.handleLogout(handleLogout);
 
   return (
-    <div className={cn("flex justify-between items-center bg-slate-800 border-b border-slate-700", className)}>
+    <div className={cn("sticky top-0 flex justify-between items-center bg-slate-800 border-b border-slate-700", className)}>
       {/* ЛЕВАЯ ЧАСТЬ: Меню + Логотип */}
       <div className="flex items-center gap-1 sm:gap-2">
         <Button
