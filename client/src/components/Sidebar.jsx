@@ -1,3 +1,4 @@
+import { cn } from "@/lib/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -5,14 +6,14 @@ import { getRoleColor } from "../constants";
 import useChatStore from "../stores/useChatStore";
 import { UserCallDropdown } from "./ui/dropdown-sidebar-call";
 
-export default function Sidebar({ users, typingUsers, handleLogout }) {
+export default function Sidebar({ users, typingUsers, handleLogout , className}) {
   const messages = useChatStore((state) => state.messages);
   const currentSocketId = useChatStore((state) => state.socket?.id);
   const makeCall = useChatStore((state) => state.makeCall);
   const currentRole = useChatStore((state) => state.role);
 
   return (
-    <div className="hidden sm:flex w-50 lg:w-64 flex-col bg-slate-800 border-r border-slate-700">
+    <div className={cn("bg-slate-800 border-r border-slate-700", className)}>
       <Card className="bg-transparent border-0 shadow-none rounded-none flex-1 flex flex-col">
         <CardHeader className="pb-2">
           <CardTitle className="text-white flex justify-between items-center">

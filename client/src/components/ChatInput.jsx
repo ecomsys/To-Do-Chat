@@ -1,3 +1,4 @@
+import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import FilePreview from "./FilePreview";
@@ -17,6 +18,7 @@ export default function ChatInput({
   sendMessage,
   sendFile,
   uploadingFile,
+  className,
 }) {
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -35,7 +37,10 @@ export default function ChatInput({
   return (
     <form
       onSubmit={handleSubmit}
-      className="p-3 sm:p-4 bg-slate-800 border-t border-slate-700 relative z-10 shrink-0 pb-[max(0.75rem,env(safe-area-inset-bottom))]"
+      className={cn(
+        "bg-slate-800 border-t border-slate-700 relative z-10 shrink-0",
+        className,
+      )}
     >
       {/* Плашка "Редактирование" */}
       {editingMessage && (

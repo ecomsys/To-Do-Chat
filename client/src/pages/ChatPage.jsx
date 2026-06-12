@@ -33,15 +33,16 @@ export default function ChatPage() {
   const toggleMobileMenu = useChatStore((state) => state.toggleMobileMenu);
 
   return (
-    <div className="flex h-full border border-slate-700 z-10 relative w-full">
+    <div className="flex border-r border-l border-slate-700 z-10 relative">
       <Sidebar
         users={users}
         typingUsers={typingUsers}
         handleLogout={handleLogout}
+        className="hidden sm:flex flex-col w-50 lg:w-64"
       />
 
       {/* ГЛАВНЫЙ КОНТЕЙНЕР ЧАТА */}
-      <div className="flex-1 flex flex-col min-w-0 ">
+      <div className="flex flex-col h-[100dvh] w-full">
         <ChatHeader
           role={role}
           isProgrammer={isProgrammer}
@@ -49,9 +50,13 @@ export default function ChatPage() {
           clearUploads={clearUploads}
           toggleMobileMenu={toggleMobileMenu}
           handleLogout={handleLogout}
+          className="p-3 sm:p-4"
         />
 
-        <MessageList messages={messages} />
+        <MessageList
+          messages={messages}
+          className="flex-1 flex flex-col min-h-0 overflow-y-auto custom-scroll p-4 space-y-4"
+        />
 
         <ChatInput
           selectedFile={selectedFile}
@@ -64,6 +69,7 @@ export default function ChatPage() {
           sendMessage={sendMessage}
           sendFile={sendFile}
           uploadingFile={uploadingFile}
+          className="mt-auto pt-3 pb-7 px-3 sm:px-4 sm:pt-4"
         />
       </div>
 
@@ -74,7 +80,6 @@ export default function ChatPage() {
         typingUsers={typingUsers}
         handleLogout={handleLogout}
       />
-
       <VideoCallModal />
     </div>
   );

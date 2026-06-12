@@ -1,10 +1,11 @@
+import { cn } from "@/lib/utils";
 import { useEffect, useRef, useState } from "react";
 import MessageItem from "./MessageItem";
 import { ArrowDown } from "lucide-react";
 import useChatStore from "../stores/useChatStore";
 import { motion, AnimatePresence } from "framer-motion"; // Импортируем framer-motion
 
-function MessageList({ messages }) {
+function MessageList({ messages, className }) {
   const containerRef = useRef(null);
   const [showScrollBtn, setShowScrollBtn] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
@@ -80,27 +81,28 @@ function MessageList({ messages }) {
   }, [messages, currentSocketId]);
 
   return (
-    <div className="flex flex-col flex-1 relative min-h-0 bg-gradient-to-br from-slate-800 to-slate-900">
-      <div
-        ref={containerRef}
-        onScroll={handleScroll}
-        className="flex-1 min-h-0 overflow-y-auto custom-scroll p-4 space-y-4"
-      >
-        {/* AnimatePresence включает анимацию удаления (exit) */}
-        <AnimatePresence initial={false}>
-          {messages.map((msg) => (
-            <motion.div
-              key={msg.id}
-              initial={{ opacity: 0, y: 20, scale: 0.95 }} // Начальное состояние: невидимый, снизу, чуть меньше
-              animate={{ opacity: 1, y: 0, scale: 1 }} // К какому состоянию анимировать: видимым, на месте, нормальный размер
-              exit={{ opacity: 0, scale: 0.95, transition: { duration: 0.15 } }} // Анимация удаления: растворяется и чуть уменьшается
-              transition={{ duration: 0.2, ease: "easeOut" }} // Настройки времени и плавности
-            >
-              <MessageItem msg={msg} />
-            </motion.div>
-          ))}
-        </AnimatePresence>
-      </div>
+    <div
+      ref={containerRef}
+      onScroll={handleScroll}
+      className={cn(
+        "relative bg-gradient-to-br from-slate-800 to-slate-900",
+        className,
+      )}
+    >
+      {/* AnimatePresence включает анимацию удаления (exit) */}
+      <AnimatePresence initial={false}>
+        {messages.map((msg) => (
+          <motion.div
+            key={msg.id}
+            initial={{ opacity: 0, y: 20, scale: 0.95 }} // Начальное состояние: невидимый, снизу, чуть меньше
+            animate={{ opacity: 1, y: 0, scale: 1 }} // К какому состоянию анимировать: видимым, на месте, нормальный размер
+            exit={{ opacity: 0, scale: 0.95, transition: { duration: 0.15 } }} // Анимация удаления: растворяется и чуть уменьшается
+            transition={{ duration: 0.2, ease: "easeOut" }} // Настройки времени и плавности
+          >
+            <MessageItem msg={msg} />
+          </motion.div>
+        ))}
+      </AnimatePresence>
 
       {/* Кнопка скролла вниз со счетчиком */}
       <button
