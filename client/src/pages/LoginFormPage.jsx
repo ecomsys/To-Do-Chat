@@ -49,7 +49,7 @@ export default function LoginForm() { // УБРАЛИ ВСЕ ПРОПСЫ!
   };
 
   return (
-    <div className="w-full min-h-screen flex items-center justify-center p-4">
+    <div className="w-full min-h-[100dvh] flex items-center justify-center p-8">
       <Card className="w-full max-w-sm bg-slate-800/80 backdrop-blur-lg border border-slate-700 shadow-2xl rounded-xl">
         <CardHeader className="pb-4 pt-6 px-6">
           <CardTitle className="text-3xl font-bold text-white text-center tracking-tight">

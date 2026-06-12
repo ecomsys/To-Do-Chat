@@ -1,3 +1,4 @@
+import { cn } from "@/lib/utils";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
@@ -32,6 +33,7 @@ export default function ChatHeader({
   clearUploads,
   toggleMobileMenu,
   handleLogout,
+  className
 }) {
   const navigate = useNavigate();  
   const [isFullscreen, setIsFullscreen] = useState(false);
@@ -64,7 +66,7 @@ export default function ChatHeader({
   const handleFuncLogout = () => modalServices.handleLogout(handleLogout);
 
   return (
-    <div className="bg-slate-800 p-3 sm:p-4 border-b border-slate-700 flex justify-between items-center">
+    <div className={cn("flex justify-between items-center bg-slate-800 border-b border-slate-700", className)}>
       {/* ЛЕВАЯ ЧАСТЬ: Меню + Логотип */}
       <div className="flex items-center gap-1 sm:gap-2">
         <Button

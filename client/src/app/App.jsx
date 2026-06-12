@@ -47,7 +47,7 @@ function App() {
   if (step === "loading") return <LoadingScreen />;
 
   return (
-    <div className="h-screen max-h-[100dvh] bg-gradient-to-br from-slate-800 to-slate-900 overflow-hidden relative">
+    <div className="min-h-[100dvh] bg-gradient-to-br from-slate-800 to-slate-900 relative">
       {/* Фоновый узор */}
       <div
         className="absolute inset-0 pointer-events-none opacity-10 z-0"
@@ -56,43 +56,46 @@ function App() {
         }}
       />
 
-      <div className="max-w-6xl h-full px-3 sm:px-8 mx-auto z-10 relative">
-        <Routes>
-          {/* Роут Логина */}
-          <Route
-            path="/login"
-            element={
-              step === "chat" ? <Navigate to="/" replace /> : <LoginForm />
-            }
-          />
+      <div className="max-h-[100dvh] overflow-y-auto">
+        
+        <div className="max-w-6xl px-3 sm:px-8 mx-auto z-10 relative">
+          <Routes>
+            {/* Роут Логина */}
+            <Route
+              path="/login"
+              element={
+                step === "chat" ? <Navigate to="/" replace /> : <LoginForm />
+              }
+            />
 
-          {/* Роут Админки (Защищен ролью Программиста) */}
-          <Route
-            path="/admin"
-            element={
-              <AdminGuard>
-                <AdminPanel />
-              </AdminGuard>
-            }
-          />
+            {/* Роут Админки (Защищен ролью Программиста) */}
+            <Route
+              path="/admin"
+              element={
+                <AdminGuard>
+                  <AdminPanel />
+                </AdminGuard>
+              }
+            />
 
-          {/* Главный роут Чата (Защищен авторизацией) */}
-          <Route
-            path="/"
-            element={
-              <AuthGuard>
-                <ChatPage />
-              </AuthGuard>
-            }
-          />
+            {/* Главный роут Чата (Защищен авторизацией) */}
+            <Route
+              path="/"
+              element={
+                <AuthGuard>
+                  <ChatPage />
+                </AuthGuard>
+              }
+            />
 
-          {/* Если URL кривой — кидаем на главную */}
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
+            {/* Если URL кривой — кидаем на главную */}
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </div>
+
+        <Toaster richColors position="bottom-left" theme="dark" />
+        <Modal />
       </div>
-
-      <Toaster richColors position="bottom-left" theme="dark" />
-      <Modal />
     </div>
   );
 }
