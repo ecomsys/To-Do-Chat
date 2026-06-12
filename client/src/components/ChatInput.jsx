@@ -25,6 +25,11 @@ export default function ChatInput({
     e.preventDefault();
     if (selectedFile) sendFile();
     else sendMessage(e);
+
+    // Убираем фокус с инпута, чтобы гарантированно закрыть клавиатуру
+    if (document.activeElement) {
+      document.activeElement.blur();
+    }
   };
 
   const replyingTo = useChatStore((state) => state.replyingTo);

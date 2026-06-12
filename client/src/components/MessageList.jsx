@@ -39,6 +39,28 @@ function MessageList({ messages , className}) {
     }
   };
 
+
+  // ========================================== -->
+  // НОВЫЙ ХУК: Удерживает скролл внизу при ресайзе (закрытие клавиатуры)
+  // ========================================== -->
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+
+    const resizeObserver = new ResizeObserver(() => {
+      // Если мы были рядом с низом (а при отправке мы там и есть),
+      // принудительно держим скролл привязанным к самому низу.
+      if (isNearBottomRef.current) {
+        // Важно: behavior: 'auto' (мгновенный), чтобы не было анимации,
+        // которая конфликтует с анимацией закрытия клавиатуры
+        el.scrollTo({ top: el.scrollHeight, behavior: 'auto' });
+      }
+    });
+
+    resizeObserver.observe(el);
+    return () => resizeObserver.disconnect();
+  }, []);
+
   useEffect(() => {
     const el = containerRef.current;
     if (!el) return;
