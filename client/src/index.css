@@ -130,9 +130,8 @@ html, body, #root {
   height: 100%;
   margin: 0;
   padding: 0;
-  overflow: hidden;   /* убираем скролл у страницы */
-  background-color: #1e293b;
-  background-image: repeating-linear-gradient(45deg, #cbd5e1 0rem, #cbd5e1 0.0625rem, transparent 0.0625rem, transparent 1.5rem); /* задай фон как у твоего чата, чтобы "дырка" не белела */
+  overflow-x: hidden;
+  background: #1e293b; /* задай фон как у твоего чата, чтобы "дырка" не белела */
 }
 
 /* ================================================================================
