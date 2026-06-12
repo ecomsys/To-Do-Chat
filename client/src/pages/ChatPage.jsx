@@ -7,8 +7,13 @@ import useChatStore from "../stores/useChatStore";
 import { PROGRAMMER_ROLE } from "../constants";
 
 import VideoCallModal from "@/components/VideoCallModal";
+import { useKeyboard } from "../hooks/useKeyboard";
+
+import { cn } from "@/lib/utils";
 
 export default function ChatPage() {
+  const { keyboardHeight, isKeyboardOpen } = useKeyboard();
+
   const role = useChatStore((state) => state.role);
   const isProgrammer = role === PROGRAMMER_ROLE;
 
@@ -42,7 +47,7 @@ export default function ChatPage() {
       />
 
       {/* ГЛАВНЫЙ КОНТЕЙНЕР ЧАТА */}
-      <div className="flex flex-col h-[calc(var(--dvh,100dvh))] w-full">
+      <div className="flex flex-col min-h-screen w-full">
         <ChatHeader
           role={role}
           isProgrammer={isProgrammer}
@@ -69,9 +74,9 @@ export default function ChatPage() {
           sendMessage={sendMessage}
           sendFile={sendFile}
           uploadingFile={uploadingFile}
-          className="mt-auto pt-3 pb-7 px-3 sm:px-4 sm:pt-4"
+          className={cn("mt-auto pt-3 pb-7 px-3 sm:px-4 sm:pt-4")}
           style={{
-            marginBottom: "var(--keyboard-height, 0px)",
+            marginBottom: isKeyboardOpen ? `${keyboardHeight / 16}rem` : "0rem",
           }}
         />
       </div>
