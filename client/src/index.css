@@ -2,7 +2,6 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 @import "@fontsource-variable/geist";
-@source "./src/safelist.html";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -127,11 +126,13 @@
     }
 }
 
-body, html {
+html, body, #root {
   height: 100%;
   margin: 0;
   padding: 0;
-  overflow-x: hidden;
+  overflow: hidden;   /* убираем скролл у страницы */
+  background-color: #1e293b;
+  background-image: repeating-linear-gradient(45deg, #cbd5e1 0rem, #cbd5e1 0.0625rem, transparent 0.0625rem, transparent 1.5rem); /* задай фон как у твоего чата, чтобы "дырка" не белела */
 }
 
 /* ================================================================================
