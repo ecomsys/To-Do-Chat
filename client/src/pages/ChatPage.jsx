@@ -62,8 +62,7 @@ export default function ChatPage() {
         />
 
         <MessageList
-          messages={messages}
-          className="flex-1 flex flex-col min-h-0 overflow-y-auto custom-scroll p-4 space-y-4"
+          messages={messages}          
         />
 
         <ChatInput
