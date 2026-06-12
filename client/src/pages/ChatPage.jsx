@@ -7,14 +7,13 @@ import useChatStore from "../stores/useChatStore";
 import { PROGRAMMER_ROLE } from "../constants";
 
 import VideoCallModal from "@/components/VideoCallModal";
-
 import { useKeyboard } from "../hooks/useKeyboard";
 
 import { cn } from "@/lib/utils";
 
 export default function ChatPage() {
-  const { keyboardHeight, isKeyboardOpen } = useKeyboard();
-  const isFullscreen = document.fullscreenElement;
+  const {  isKeyboardOpen } = useKeyboard();
+  const isFullScreen = document.fullscreenElement;
 
   const role = useChatStore((state) => state.role);
   const isProgrammer = role === PROGRAMMER_ROLE;
@@ -39,18 +38,10 @@ export default function ChatPage() {
   const handleLogout = useChatStore((state) => state.handleLogout);
   const toggleMobileMenu = useChatStore((state) => state.toggleMobileMenu);
 
-  // Нужно ли применять отступ?
-  const applyKeyboardMargin = isKeyboardOpen && isFullscreen;
+  const needMarginBottom = isKeyboardOpen && isFullScreen;
 
   return (
-    <div
-      className={cn("flex border-r h-[100dvh] border-l border-slate-700 z-10 relative")}
-      style={{
-        height: applyKeyboardMargin
-          ? `calc(100dvh - ${keyboardHeight}px)`
-          : "",
-      }}
-    >
+    <div className="flex border-r border-l border-slate-700 z-10 relative">
       <Sidebar
         users={users}
         typingUsers={typingUsers}
@@ -59,7 +50,7 @@ export default function ChatPage() {
       />
 
       {/* ГЛАВНЫЙ КОНТЕЙНЕР ЧАТА */}
-      <div className="flex flex-col flex-1 w-full">
+      <div className="flex flex-col h-[100dvh] w-full">
         <ChatHeader
           role={role}
           isProgrammer={isProgrammer}
@@ -72,7 +63,7 @@ export default function ChatPage() {
 
         <MessageList
           messages={messages}
-          className="h-full overflow-y-auto custom-scroll p-4 space-y-4"
+          className="flex-1 flex flex-col min-h-0 overflow-y-auto custom-scroll p-4 space-y-4"
         />
 
         <ChatInput
@@ -86,7 +77,10 @@ export default function ChatPage() {
           sendMessage={sendMessage}
           sendFile={sendFile}
           uploadingFile={uploadingFile}
-          className={cn("mt-auto pt-3 pb-7 px-3 sm:px-4 sm:pt-4")}          
+          className={cn("mt-auto pt-3 pb-7 px-3 sm:px-4 sm:pt-4")}
+          style={{
+            marginBottom: needMarginBottom ? "2.75rem" : "",
+          }}
         />
       </div>
 

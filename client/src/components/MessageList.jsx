@@ -1,3 +1,4 @@
+import { cn } from "@/lib/utils";
 import { useEffect, useRef, useState } from "react";
 import MessageItem from "./MessageItem";
 import { ArrowDown } from "lucide-react";
@@ -79,29 +80,29 @@ function MessageList({ messages, className }) {
     prevMsgCountRef.current = messages.length;
   }, [messages, currentSocketId]);
 
-
   return (
-    <div className="flex-1 relative min-h-0 bg-gradient-to-br from-slate-800 to-slate-900">
-      <div
-        ref={containerRef}
-        onScroll={handleScroll}
-        className={className}
-      >
-        {/* AnimatePresence включает анимацию удаления (exit) */}
-        <AnimatePresence initial={false}>
-          {messages.map((msg) => (
-            <motion.div
-              key={msg.id}
-              initial={{ opacity: 0, y: 20, scale: 0.95 }} // Начальное состояние: невидимый, снизу, чуть меньше
-              animate={{ opacity: 1, y: 0, scale: 1 }} // К какому состоянию анимировать: видимым, на месте, нормальный размер
-              exit={{ opacity: 0, scale: 0.95, transition: { duration: 0.15 } }} // Анимация удаления: растворяется и чуть уменьшается
-              transition={{ duration: 0.2, ease: "easeOut" }} // Настройки времени и плавности
-            >
-              <MessageItem msg={msg} />
-            </motion.div>
-          ))}
-        </AnimatePresence>
-      </div>
+    <div
+      ref={containerRef}
+      onScroll={handleScroll}
+      className={cn(
+        "relative bg-gradient-to-br from-slate-800 to-slate-900",
+        className,
+      )}
+    >
+      {/* AnimatePresence включает анимацию удаления (exit) */}
+      <AnimatePresence initial={false}>
+        {messages.map((msg) => (
+          <motion.div
+            key={msg.id}
+            initial={{ opacity: 0, y: 20, scale: 0.95 }} // Начальное состояние: невидимый, снизу, чуть меньше
+            animate={{ opacity: 1, y: 0, scale: 1 }} // К какому состоянию анимировать: видимым, на месте, нормальный размер
+            exit={{ opacity: 0, scale: 0.95, transition: { duration: 0.15 } }} // Анимация удаления: растворяется и чуть уменьшается
+            transition={{ duration: 0.2, ease: "easeOut" }} // Настройки времени и плавности
+          >
+            <MessageItem msg={msg} />
+          </motion.div>
+        ))}
+      </AnimatePresence>
 
       {/* Кнопка скролла вниз со счетчиком */}
       <button
