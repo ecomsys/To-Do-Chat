@@ -17,10 +17,10 @@ import { AuthGuard, AdminGuard } from "@/components/ProtectedRoute";
 import { Toaster } from "sonner";
 import Modal from "@/components/Modal";
 
-import { useViewportHeight } from "../hooks/useViewportHeight";
+// import { useViewportHeight } from "../hooks/useViewportHeight";
 
 function App() {
-  const viewportHeight = useViewportHeight();
+  // const viewportHeight = useViewportHeight();
 
   const step = useChatStore((state) => state.step);
   const initApp = useChatStore((state) => state.initApp);
@@ -52,8 +52,8 @@ function App() {
 
   return (
     <div
-      className="bg-gradient-to-br from-slate-800 to-slate-900 relative overflow-hidden"
-      style={{ height: `${viewportHeight}px` }}
+      className="fixed inset-0 bg-gradient-to-br from-slate-800 to-slate-900 relative overflow-hidden"
+      // style={{ height: `${viewportHeight}px` }}
     >
       {/* Фоновый узор */}
       <div

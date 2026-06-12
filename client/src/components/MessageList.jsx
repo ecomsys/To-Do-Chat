@@ -85,7 +85,7 @@ function MessageList({ messages , className}) {
       <div
         ref={containerRef}
         onScroll={handleScroll}
-         className="flex-1 min-h-0 overflow-y-auto custom-scroll p-4 space-y-4"
+         className="flex-1 min-h-0 overflow-y-auto overscroll-y-contain custom-scroll p-4 space-y-4"
       >
         {/* AnimatePresence включает анимацию удаления (exit) */}
         <AnimatePresence initial={false}>

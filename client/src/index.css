@@ -132,7 +132,8 @@ body,
   height: 100%;
   margin: 0;
   padding: 0;
-  overflow: hidden;
+  overflow: hidden; /* Главная магия! Запрещаем body скроллиться */
+  overscroll-behavior: none; /* Убиваем резиновый эффект (pull-to-refresh) на корню */
   background-color: #1e293b; /* задай фон как у твоего чата, чтобы "дырка" не белела */
 }
 
