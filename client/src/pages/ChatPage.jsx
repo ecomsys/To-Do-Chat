@@ -9,13 +9,12 @@ import { PROGRAMMER_ROLE } from "../constants";
 import VideoCallModal from "@/components/VideoCallModal";
 
 import { useKeyboard } from "../hooks/useKeyboard";
-import { useFullscreen } from "@/hooks/useFullScreen";
 
 import { cn } from "@/lib/utils";
 
 export default function ChatPage() {
   const { keyboardHeight, isKeyboardOpen } = useKeyboard();
-  const isFullscreen = useFullscreen();
+  const isFullscreen = document.fullscreenElement;
 
   const role = useChatStore((state) => state.role);
   const isProgrammer = role === PROGRAMMER_ROLE;
@@ -45,11 +44,11 @@ export default function ChatPage() {
 
   return (
     <div
-      className={cn("flex border-r border-l border-slate-700 z-10 relative")}
+      className={cn("flex border-r h-[100dvh] border-l border-slate-700 z-10 relative")}
       style={{
         height: applyKeyboardMargin
-          ? `calc(100dvh - ${keyboardHeight/16}rem)`
-          : "100dvh",
+          ? `calc(100dvh - ${keyboardHeight}px)`
+          : "",
       }}
     >
       <Sidebar
@@ -87,10 +86,7 @@ export default function ChatPage() {
           sendMessage={sendMessage}
           sendFile={sendFile}
           uploadingFile={uploadingFile}
-          className={cn("mt-auto pt-3 pb-7 px-3 sm:px-4 sm:pt-4")}
-          style={{
-            marginBottom: applyKeyboardMargin ? "2.75rem" : "",
-          }}
+          className={cn("mt-auto pt-3 pb-7 px-3 sm:px-4 sm:pt-4")}          
         />
       </div>
 
