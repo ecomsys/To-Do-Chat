@@ -12,7 +12,8 @@ import { useKeyboard } from "../hooks/useKeyboard";
 import { cn } from "@/lib/utils";
 
 export default function ChatPage() {
-  const { keyboardHeight, isKeyboardOpen } = useKeyboard();
+  const {  isKeyboardOpen } = useKeyboard();
+  const isFullScreen = document.fullscreenElement;
 
   const role = useChatStore((state) => state.role);
   const isProgrammer = role === PROGRAMMER_ROLE;
@@ -36,6 +37,8 @@ export default function ChatPage() {
   const clearUploads = useChatStore((state) => state.clearUploads);
   const handleLogout = useChatStore((state) => state.handleLogout);
   const toggleMobileMenu = useChatStore((state) => state.toggleMobileMenu);
+
+  const needMarginBottom = isKeyboardOpen && isFullScreen;
 
   return (
     <div className="flex border-r border-l border-slate-700 z-10 relative">
@@ -76,7 +79,7 @@ export default function ChatPage() {
           uploadingFile={uploadingFile}
           className={cn("mt-auto pt-3 pb-7 px-3 sm:px-4 sm:pt-4")}
           style={{
-            paddingBottom: isKeyboardOpen ? `2rem` : "0rem",
+            marginBottom: needMarginBottom ? "2rem" : "",
           }}
         />
       </div>
