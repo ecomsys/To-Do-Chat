@@ -7,13 +7,15 @@ import useChatStore from "../stores/useChatStore";
 import { PROGRAMMER_ROLE } from "../constants";
 
 import VideoCallModal from "@/components/VideoCallModal";
+
 import { useKeyboard } from "../hooks/useKeyboard";
+import { useFullscreen } from "@/hooks/useFullScreen";
 
 import { cn } from "@/lib/utils";
 
 export default function ChatPage() {
-  const {  isKeyboardOpen } = useKeyboard();
-  const isFullScreen = document.fullscreenElement;
+  const { keyboardHeight, isKeyboardOpen } = useKeyboard();
+  const isFullscreen = useFullscreen();
 
   const role = useChatStore((state) => state.role);
   const isProgrammer = role === PROGRAMMER_ROLE;
@@ -38,10 +40,18 @@ export default function ChatPage() {
   const handleLogout = useChatStore((state) => state.handleLogout);
   const toggleMobileMenu = useChatStore((state) => state.toggleMobileMenu);
 
-  const needMarginBottom = isKeyboardOpen && isFullScreen;
+  // Нужно ли применять отступ?
+  const applyKeyboardMargin = isKeyboardOpen && isFullscreen;
 
   return (
-    <div className="flex h-[100dvh] border-r border-l border-slate-700 z-10 relative">
+    <div
+      className={cn("flex border-r border-l border-slate-700 z-10 relative")}
+      style={{
+        height: applyKeyboardMargin
+          ? `calc(100dvh - ${keyboardHeight/16}rem)`
+          : "100dvh",
+      }}
+    >
       <Sidebar
         users={users}
         typingUsers={typingUsers}
@@ -79,7 +89,7 @@ export default function ChatPage() {
           uploadingFile={uploadingFile}
           className={cn("mt-auto pt-3 pb-7 px-3 sm:px-4 sm:pt-4")}
           style={{
-            marginBottom: needMarginBottom ? "2.75rem" : "",
+            marginBottom: applyKeyboardMargin ? "2.75rem" : "",
           }}
         />
       </div>
