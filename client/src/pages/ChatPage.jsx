@@ -47,7 +47,7 @@ export default function ChatPage() {
       />
 
       {/* ГЛАВНЫЙ КОНТЕЙНЕР ЧАТА */}
-      <div className="flex flex-col h-screen w-full">
+      <div className="flex flex-col h-[100dvh] w-full">
         <ChatHeader
           role={role}
           isProgrammer={isProgrammer}
@@ -76,7 +76,7 @@ export default function ChatPage() {
           uploadingFile={uploadingFile}
           className={cn("mt-auto pt-3 pb-7 px-3 sm:px-4 sm:pt-4")}
           style={{
-            marginBottom: isKeyboardOpen ? `${keyboardHeight / 16}rem` : "0rem",
+            paddingBottom: isKeyboardOpen ? `2rem` : "0rem",
           }}
         />
       </div>
