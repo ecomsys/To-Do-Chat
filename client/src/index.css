@@ -132,7 +132,7 @@ body,
   height: 100%;
   margin: 0;
   padding: 0;
-  overflow-x: hidden;
+  overflow: hidden;
   background-color: #1e293b; /* задай фон как у твоего чата, чтобы "дырка" не белела */
 }
 
