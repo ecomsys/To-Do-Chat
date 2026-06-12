@@ -50,7 +50,7 @@ export default function ChatPage() {
       />
 
       {/* ГЛАВНЫЙ КОНТЕЙНЕР ЧАТА */}
-      <div className="flex flex-col flex-1 w-full">
+      <div className="flex flex-col h-[inherit] w-full">
         <ChatHeader
           role={role}
           isProgrammer={isProgrammer}
@@ -62,7 +62,8 @@ export default function ChatPage() {
         />
 
         <MessageList
-          messages={messages}          
+          messages={messages}  
+          className="flex-1 min-h-0"       
         />
 
         <ChatInput
@@ -76,10 +77,9 @@ export default function ChatPage() {
           sendMessage={sendMessage}
           sendFile={sendFile}
           uploadingFile={uploadingFile}
-          className={cn("mt-auto pt-3 pb-7 px-3 sm:px-4 sm:pt-4")}
-          style={{
-            marginBottom: needMarginBottom ? "2.75rem" : "",
-          }}
+          className={cn("mt-auto pt-3 pb-7 px-3 sm:px-4 sm:pt-4",
+            needMarginBottom ? "mb-[2.75rem]" : "",
+          )}         
         />
       </div>
 

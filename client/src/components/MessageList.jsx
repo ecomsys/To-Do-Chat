@@ -5,7 +5,7 @@ import { ArrowDown } from "lucide-react";
 import useChatStore from "../stores/useChatStore";
 import { motion, AnimatePresence } from "framer-motion"; // Импортируем framer-motion
 
-function MessageList({ messages }) {
+function MessageList({ messages , className}) {
   const containerRef = useRef(null);
   const [showScrollBtn, setShowScrollBtn] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
@@ -81,11 +81,11 @@ function MessageList({ messages }) {
   }, [messages, currentSocketId]);
 
   return (
-    <div className={cn("relative bg-gradient-to-br from-slate-800 to-slate-900")}>
+    <div className={cn("relative bg-gradient-to-br from-slate-800 to-slate-900", className)}>
       <div
         ref={containerRef}
         onScroll={handleScroll}
-        className="flex-1 flex-col min-h-0 overflow-y-auto custom-scroll p-4 space-y-4"
+        className="flex flex-col min-h-0 overflow-y-auto custom-scroll p-4 space-y-4"
       >
         {/* AnimatePresence включает анимацию удаления (exit) */}
         <AnimatePresence initial={false}>
