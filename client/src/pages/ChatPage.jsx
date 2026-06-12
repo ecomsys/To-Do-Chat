@@ -76,7 +76,7 @@ export default function ChatPage() {
             sendFile={sendFile}
             uploadingFile={uploadingFile}
             className={cn("pt-3 pb-5 px-3 sm:px-4 sm:py-4 sm:pb-6",
-              isFullscreen ? "pb-[2.75rem]" : "",
+              isFullscreen ? "pb-[3.25rem]" : "",
             )}
           />
         </div>

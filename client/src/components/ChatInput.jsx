@@ -39,7 +39,7 @@ export default function ChatInput({
     <form
       onSubmit={handleSubmit}
       className={cn(
-        "bg-slate-800 border-t border-slate-700 relative z-10 shrink-0",
+        "bg-slate-800 border-t border-b border-slate-700 relative z-10 shrink-0",
         className,
       )}
       style={style}
