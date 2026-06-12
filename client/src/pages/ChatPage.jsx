@@ -8,6 +8,8 @@ import { PROGRAMMER_ROLE } from "../constants";
 
 import VideoCallModal from "@/components/VideoCallModal";
 
+import { useViewportHeight } from "../hooks/useViewportHeight";
+
 export default function ChatPage() {
   const role = useChatStore((state) => state.role);
   const isProgrammer = role === PROGRAMMER_ROLE;
@@ -32,8 +34,12 @@ export default function ChatPage() {
   const handleLogout = useChatStore((state) => state.handleLogout);
   const toggleMobileMenu = useChatStore((state) => state.toggleMobileMenu);
 
+  const viewportHeight = useViewportHeight();
+
   return (
-    <div className="flex h-full w-full border-r border-l border-slate-700 z-10 relative overflow-hidden">
+    <div className="flex w-full border-r border-l border-slate-700 z-10 relative overflow-hidden"
+     style={{ height: `${viewportHeight}px` }} // <-- ВОТ ГЛАВНАЯ МАГИЯ
+    >
       <Sidebar
         users={users}
         typingUsers={typingUsers}
