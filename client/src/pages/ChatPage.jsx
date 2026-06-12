@@ -41,7 +41,7 @@ export default function ChatPage() {
   const needMarginBottom = isKeyboardOpen && isFullScreen;
 
   return (
-    <div className="flex border-r border-l border-slate-700 z-10 relative">
+    <div className="flex h-[100dvh] border-r border-l border-slate-700 z-10 relative">
       <Sidebar
         users={users}
         typingUsers={typingUsers}
@@ -50,7 +50,7 @@ export default function ChatPage() {
       />
 
       {/* ГЛАВНЫЙ КОНТЕЙНЕР ЧАТА */}
-      <div className="flex flex-col h-[100dvh] w-full">
+      <div className="flex flex-col flex-1 w-full">
         <ChatHeader
           role={role}
           isProgrammer={isProgrammer}
